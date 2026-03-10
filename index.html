@@ -169,7 +169,7 @@
 
         .total-fare-display {
             font-size: 18px;
-            color: #d9534f; /* 유지: 금액 강조용 빨간색 */
+            color: #d9534f;
             font-weight: bold;
             margin-top: 5px;
         }
@@ -397,7 +397,10 @@
                 // API 조회 연동
                 const inputPn = tr.querySelector('.input-pn');
                 inputPn.addEventListener('blur', async () => {
-                    const pn = inputPn.value.trim();
+                    // 해결 1: 입력값을 자동으로 대문자로 변환
+                    const pn = inputPn.value.trim().toUpperCase(); 
+                    inputPn.value = pn; // 입력창에도 대문자로 업데이트
+
                     if(pn && pn !== tr.dataset.lastPn) {
                         tr.dataset.lastPn = pn;
                         tr.querySelector('.cell-net').innerText = '조회중...';
@@ -408,8 +411,9 @@
                             calcRow(tr, type);
                             calculateTotal(type);
                         } catch (e) {
+                            // 해결 2: 에러 팝업 대신 셀에 N/A로 표시하여 UX 개선
                             tr.querySelector('.cell-net').innerText = 'N/A';
-                            alert(e.message);
+                            console.error(e.message);
                         }
                     }
                 });
