@@ -154,8 +154,26 @@
             transform: translateY(0);
         }
 
+        /* 저장 버튼 스타일 추가 */
+        .save-rate-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: background-color 0.2s;
+            margin-left: 10px;
+        }
+
+        .save-rate-btn:hover {
+            background-color: #218838;
+        }
+
         .global-settings {
-            width: 320px;
+            width: auto;
             margin-bottom: 30px;
         }
 
@@ -187,11 +205,15 @@
         <table class="global-settings">
             <tr>
                 <td class="text-left" style="width: 100px; font-weight: 600;">SEK 환율</td>
-                <td class="bg-blue"><input type="number" id="sek-rate" value="130.00" step="0.01"></td>
+                <td class="bg-blue" style="width: 120px;"><input type="number" id="sek-rate" value="147.93" step="0.01"></td>
+                <td rowspan="2" style="border: none; vertical-align: middle; text-align: left;">
+                    <button class="save-rate-btn" onclick="saveExchangeRates()">현재 환율 설정 저장</button>
+                    <div id="save-msg" style="color: #28a745; font-size: 12px; font-weight: bold; display: none; margin-top: 8px; margin-left: 12px;">✅ 저장되었습니다!</div>
+                </td>
             </tr>
             <tr>
                 <td class="text-left" style="font-weight: 600;">EURO 환율</td>
-                <td class="bg-blue"><input type="number" id="euro-rate" value="1483.88" step="0.01"></td>
+                <td class="bg-blue"><input type="number" id="euro-rate" value="1633.53" step="0.01"></td>
             </tr>
         </table>
 
@@ -276,6 +298,32 @@
     </div>
 
     <script>
+        // --- 환율 로컬 스토리지 저장 및 불러오기 기능 ---
+        function loadExchangeRates() {
+            const savedSek = localStorage.getItem('skf_sek_rate');
+            const savedEuro = localStorage.getItem('skf_euro_rate');
+            
+            // 로컬 스토리지에 저장된 값이 있으면 덮어쓰기 (없으면 HTML 기본값 147.93 / 1633.53 사용)
+            if (savedSek) document.getElementById('sek-rate').value = savedSek;
+            if (savedEuro) document.getElementById('euro-rate').value = savedEuro;
+        }
+
+        function saveExchangeRates() {
+            const sekValue = document.getElementById('sek-rate').value;
+            const euroValue = document.getElementById('euro-rate').value;
+            
+            // 값을 브라우저 로컬 스토리지에 저장
+            localStorage.setItem('skf_sek_rate', sekValue);
+            localStorage.setItem('skf_euro_rate', euroValue);
+
+            // 저장 완료 메시지 표시 후 2초 뒤 숨김
+            const msgElement = document.getElementById('save-msg');
+            msgElement.style.display = 'block';
+            setTimeout(() => {
+                msgElement.style.display = 'none';
+            }, 2000);
+        }
+
         // --- DATA STORAGE ---
         const wgtCalTable = [
             { net: 0.1, gross: 1.6, sealy: 1.6 }, { net: 0.2, gross: 1.7, sealy: 1.7 }, { net: 0.3, gross: 1.8, sealy: 1.9 }, { net: 0.4, gross: 1.9, sealy: 2.0 }, { net: 0.5, gross: 2.1, sealy: 2.1 }, { net: 0.6, gross: 2.2, sealy: 2.2 }, { net: 0.7, gross: 2.3, sealy: 2.3 }, { net: 0.8, gross: 2.4, sealy: 2.5 }, { net: 0.9, gross: 2.5, sealy: 2.6 }, { net: 1, gross: 2.6, sealy: 2.7 },
@@ -397,9 +445,8 @@
                 // API 조회 연동
                 const inputPn = tr.querySelector('.input-pn');
                 inputPn.addEventListener('blur', async () => {
-                    // 해결 1: 입력값을 자동으로 대문자로 변환
                     const pn = inputPn.value.trim().toUpperCase(); 
-                    inputPn.value = pn; // 입력창에도 대문자로 업데이트
+                    inputPn.value = pn; 
 
                     if(pn && pn !== tr.dataset.lastPn) {
                         tr.dataset.lastPn = pn;
@@ -411,7 +458,6 @@
                             calcRow(tr, type);
                             calculateTotal(type);
                         } catch (e) {
-                            // 해결 2: 에러 팝업 대신 셀에 N/A로 표시하여 UX 개선
                             tr.querySelector('.cell-net').innerText = 'N/A';
                             console.error(e.message);
                         }
@@ -505,8 +551,8 @@
                 finalFare = vlookupDhlCharge(totalFinalWeight, dhlChargeTable, dest);
                 if(anyLithium) finalFare += 7399;
             } else {
-                const sekRate = parseFloat(document.getElementById('sek-rate').value) || 130;
-                const euroRate = parseFloat(document.getElementById('euro-rate').value) || 1483.88;
+                const sekRate = parseFloat(document.getElementById('sek-rate').value) || 147.93;
+                const euroRate = parseFloat(document.getElementById('euro-rate').value) || 1633.53;
                 
                 const lane = airLanes[dest];
                 if(!lane) { alert('잘못된 선적지입니다.'); return; }
@@ -578,6 +624,8 @@
 
         // 초기 구동
         document.addEventListener('DOMContentLoaded', () => {
+            // 저장된 환율이 있다면 먼저 불러오기
+            loadExchangeRates();
             initSelects();
             buildRows('dhl-tbody', 'DHL');
             buildRows('air-tbody', 'AIR');
