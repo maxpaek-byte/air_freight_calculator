@@ -203,10 +203,10 @@
 
         <table class="global-settings">
             <tr>
-                <td class="text-left" style="width: 130px; font-weight: 600;">SEK 환율</td>
+                <td class="text-left" style="width: 140px; font-weight: 600;">SEK 환율</td>
                 <td class="bg-blue" style="width: 120px;"><input type="number" id="sek-rate" value="147.93" step="0.01"></td>
                 <td rowspan="3" style="border: none; vertical-align: middle; text-align: left;">
-                    <button class="save-rate-btn" onclick="saveExchangeRates()">현재 환율 설정 저장</button>
+                    <button class="save-rate-btn" onclick="saveExchangeRates()">현재 환경 설정 저장</button>
                     <div id="save-msg" style="color: #28a745; font-size: 12px; font-weight: bold; display: none; margin-top: 8px; margin-left: 12px;">✅ 저장되었습니다!</div>
                 </td>
             </tr>
@@ -215,8 +215,8 @@
                 <td class="bg-blue"><input type="number" id="euro-rate" value="1633.53" step="0.01"></td>
             </tr>
             <tr>
-                <td class="text-left" style="font-weight: 600;">DHL 적용 비율(%)<br><span style="font-size:11px; color:#666; font-weight:normal;">(예: 7.9% 인상시 107.9)</span></td>
-                <td class="bg-blue"><input type="number" id="dhl-multiplier" value="107.9" step="0.1"></td>
+                <td class="text-left" style="font-weight: 600;">DHL 적용 비율(%)<br><span style="font-size:11px; color:#666; font-weight:normal;">(기본 100 = 2026년 단가)</span></td>
+                <td class="bg-blue"><input type="number" id="dhl-multiplier" value="100" step="0.1"></td>
             </tr>
         </table>
 
@@ -305,8 +305,8 @@
         function loadExchangeRates() {
             const savedSek = localStorage.getItem('skf_sek_rate');
             const savedEuro = localStorage.getItem('skf_euro_rate');
-            // 이전 버전의 100 비율을 무시하기 위해 키값을 v2로 변경
-            const savedDhlRate = localStorage.getItem('skf_dhl_rate_v2'); 
+            // 이전 버전의 값이 불러와지지 않도록 키값을 v2026으로 변경
+            const savedDhlRate = localStorage.getItem('skf_dhl_rate_v2026'); 
             
             if (savedSek) document.getElementById('sek-rate').value = savedSek;
             if (savedEuro) document.getElementById('euro-rate').value = savedEuro;
@@ -320,7 +320,7 @@
             
             localStorage.setItem('skf_sek_rate', sekValue);
             localStorage.setItem('skf_euro_rate', euroValue);
-            localStorage.setItem('skf_dhl_rate_v2', dhlValue); 
+            localStorage.setItem('skf_dhl_rate_v2026', dhlValue); 
 
             const msgElement = document.getElementById('save-msg');
             msgElement.style.display = 'block';
@@ -354,8 +354,8 @@
             { net: 183, gross: 222.0, sealy: null }, { net: 184, gross: 223.2, sealy: null }, { net: 185, gross: 224.5, sealy: null }, { net: 186, gross: 225.7, sealy: null }, { net: 187, gross: 226.9, sealy: null }, { net: 188, gross: 228.1, sealy: null }, { net: 189, gross: 229.3, sealy: null }, { net: 190, gross: 230.5, sealy: null }, { net: 191, gross: 230.5, sealy: null }, { net: 192, gross: 230.5, sealy: null }
         ];
 
-        // 원본(Base) 2025 DHL 요금표
-        const dhlChargeTable = [
+        // 2025년 기준 요금 데이터 원본
+        const baseDhlChargeTable2025 = [
             { weight: 0.5, NEA: 57400, MYS: 64300, USA: 57600 }, { weight: 1, NEA: 65400, MYS: 73200, USA: 65700 }, { weight: 1.5, NEA: 69500, MYS: 80300, USA: 72300 }, { weight: 2, NEA: 73600, MYS: 87400, USA: 78900 }, { weight: 2.5, NEA: 77600, MYS: 94300, USA: 85100 }, { weight: 3, NEA: 80800, MYS: 100400, USA: 91100 }, { weight: 3.5, NEA: 84000, MYS: 106500, USA: 97000 }, { weight: 4, NEA: 87200, MYS: 112500, USA: 103000 }, { weight: 4.5, NEA: 90400, MYS: 118600, USA: 108900 }, { weight: 5, NEA: 93600, MYS: 124700, USA: 114900 },
             { weight: 5.5, NEA: 96600, MYS: 130100, USA: 120200 }, { weight: 6, NEA: 99600, MYS: 135600, USA: 125600 }, { weight: 6.5, NEA: 102600, MYS: 141000, USA: 130900 }, { weight: 7, NEA: 105600, MYS: 146500, USA: 136300 }, { weight: 7.5, NEA: 108600, MYS: 151900, USA: 141600 }, { weight: 8, NEA: 111600, MYS: 157400, USA: 147000 }, { weight: 8.5, NEA: 114600, MYS: 162800, USA: 152300 }, { weight: 9, NEA: 117600, MYS: 168300, USA: 157700 }, { weight: 9.5, NEA: 120700, MYS: 173700, USA: 163000 }, { weight: 10, NEA: 123700, MYS: 179200, USA: 168400 },
             { weight: 10.5, NEA: 126500, MYS: 183200, USA: 172500 }, { weight: 11, NEA: 129300, MYS: 187100, USA: 176600 }, { weight: 11.5, NEA: 132100, MYS: 191100, USA: 180600 }, { weight: 12, NEA: 135000, MYS: 195100, USA: 184700 }, { weight: 12.5, NEA: 137800, MYS: 199100, USA: 188800 }, { weight: 13, NEA: 140600, MYS: 203000, USA: 192900 }, { weight: 13.5, NEA: 143400, MYS: 207000, USA: 197000 }, { weight: 14, NEA: 146300, MYS: 211000, USA: 201100 }, { weight: 14.5, NEA: 149100, MYS: 215000, USA: 205200 }, { weight: 15, NEA: 151900, MYS: 218900, USA: 209300 },
@@ -389,6 +389,14 @@
             { weight: 281, NEA: 2369500, MYS: 3382100, USA: 3435100 }, { weight: 282, NEA: 2378000, MYS: 3394100, USA: 3447400 }, { weight: 283, NEA: 2386400, MYS: 3406100, USA: 3459600 }, { weight: 284, NEA: 2394800, MYS: 3418200, USA: 3471800 }, { weight: 285, NEA: 2403300, MYS: 3430200, USA: 3484000 }, { weight: 286, NEA: 2411700, MYS: 3442200, USA: 3496300 }, { weight: 287, NEA: 2420100, MYS: 3454300, USA: 3508500 }, { weight: 288, NEA: 2428600, MYS: 3466300, USA: 3520700 }, { weight: 289, NEA: 2437000, MYS: 3478300, USA: 3532900 }, { weight: 290, NEA: 2445400, MYS: 3490400, USA: 3545200 },
             { weight: 291, NEA: 2453900, MYS: 3502400, USA: 3557400 }, { weight: 292, NEA: 2462300, MYS: 3514500, USA: 3569600 }, { weight: 293, NEA: 2470700, MYS: 3526500, USA: 3581800 }, { weight: 294, NEA: 2479200, MYS: 3538500, USA: 3594100 }, { weight: 295, NEA: 2487600, MYS: 3550600, USA: 3606300 }, { weight: 296, NEA: 2496000, MYS: 3562600, USA: 3618500 }, { weight: 297, NEA: 2504500, MYS: 3574600, USA: 3630700 }, { weight: 298, NEA: 2512900, MYS: 3586700, USA: 3643000 }, { weight: 299, NEA: 2521300, MYS: 3598700, USA: 3655200 }, { weight: 300, NEA: 2529800, MYS: 3610700, USA: 3667400 }
         ];
+
+        // 2026년 기준 요금표 생성 (2025년 요금 * 1.079배 인상 및 100원 단위 반올림 자동 연산)
+        const dhlChargeTable = baseDhlChargeTable2025.map(row => ({
+            weight: row.weight,
+            NEA: Math.round((row.NEA * 1.079) / 100) * 100,
+            MYS: Math.round((row.MYS * 1.079) / 100) * 100,
+            USA: Math.round((row.USA * 1.079) / 100) * 100
+        }));
 
         const exchangeRates = {
             'EUR': 11.2205, 'USD': 10.4327, 'CNY': 1.43617, 'MYR': 2.224, 'KRW': 0.00753, 'SEK': 1,
@@ -555,18 +563,17 @@
 
             if(type === 'DHL') {
                 const baseFare = vlookupDhlCharge(totalFinalWeight, dhlChargeTable, dest);
-                
-                // 적용 비율 가져오기 (입력이 잘못되었을 경우 107.9 기본값 사용)
                 const dhlRateInput = parseFloat(document.getElementById('dhl-multiplier').value);
-                const multiplierValue = isNaN(dhlRateInput) ? 107.9 : dhlRateInput;
+                const multiplierValue = isNaN(dhlRateInput) ? 100 : dhlRateInput; // 값이 비정상일 경우 기본 100% 적용
                 const dhlMultiplier = multiplierValue / 100;
                 
                 finalFare = baseFare * dhlMultiplier;
 
                 if(anyLithium) finalFare += 7399;
                 
-                // [수정 완료] 최종 운임을 100원 단위로 반올림
+                // [완벽 수정] 리튬 배터리 요금(7399원)까지 더해진 모든 산출물을 마지막 단계에서 무조건 100원 단위로 반올림
                 finalFare = Math.round(finalFare / 100) * 100;
+
             } else {
                 const sekRate = parseFloat(document.getElementById('sek-rate').value) || 147.93;
                 const euroRate = parseFloat(document.getElementById('euro-rate').value) || 1633.53;
@@ -606,7 +613,7 @@
                 
                 finalFare = finalFare + (liSurcharge * euroRate);
 
-                // [수정 완료] 최종 운임을 100원 단위로 반올림
+                // [완벽 수정] AIR 결과물 역시 마지막에 무조건 100원 단위로 반올림
                 finalFare = Math.round(finalFare / 100) * 100;
             }
 
