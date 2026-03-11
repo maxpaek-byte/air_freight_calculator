@@ -154,7 +154,6 @@
             transform: translateY(0);
         }
 
-        /* 저장 버튼 스타일 추가 */
         .save-rate-btn {
             background-color: #28a745;
             color: white;
@@ -204,9 +203,9 @@
 
         <table class="global-settings">
             <tr>
-                <td class="text-left" style="width: 100px; font-weight: 600;">SEK 환율</td>
+                <td class="text-left" style="width: 130px; font-weight: 600;">SEK 환율</td>
                 <td class="bg-blue" style="width: 120px;"><input type="number" id="sek-rate" value="147.93" step="0.01"></td>
-                <td rowspan="2" style="border: none; vertical-align: middle; text-align: left;">
+                <td rowspan="3" style="border: none; vertical-align: middle; text-align: left;">
                     <button class="save-rate-btn" onclick="saveExchangeRates()">현재 환율 설정 저장</button>
                     <div id="save-msg" style="color: #28a745; font-size: 12px; font-weight: bold; display: none; margin-top: 8px; margin-left: 12px;">✅ 저장되었습니다!</div>
                 </td>
@@ -214,6 +213,10 @@
             <tr>
                 <td class="text-left" style="font-weight: 600;">EURO 환율</td>
                 <td class="bg-blue"><input type="number" id="euro-rate" value="1633.53" step="0.01"></td>
+            </tr>
+            <tr>
+                <td class="text-left" style="font-weight: 600;">DHL 적용 비율(%)<br><span style="font-size:11px; color:#666; font-weight:normal;">(예: 10%할인시 90 입력)</span></td>
+                <td class="bg-blue"><input type="number" id="dhl-multiplier" value="100" step="0.1"></td>
             </tr>
         </table>
 
@@ -298,23 +301,27 @@
     </div>
 
     <script>
-        // --- 환율 로컬 스토리지 저장 및 불러오기 기능 ---
+        // --- 환율 및 비율 로컬 스토리지 저장 및 불러오기 기능 ---
         function loadExchangeRates() {
             const savedSek = localStorage.getItem('skf_sek_rate');
             const savedEuro = localStorage.getItem('skf_euro_rate');
+            const savedDhlRate = localStorage.getItem('skf_dhl_rate'); // DHL 비율 추가
             
-            // 로컬 스토리지에 저장된 값이 있으면 덮어쓰기 (없으면 HTML 기본값 147.93 / 1633.53 사용)
+            // 로컬 스토리지에 저장된 값이 있으면 덮어쓰기 (없으면 HTML 기본값 유지)
             if (savedSek) document.getElementById('sek-rate').value = savedSek;
             if (savedEuro) document.getElementById('euro-rate').value = savedEuro;
+            if (savedDhlRate) document.getElementById('dhl-multiplier').value = savedDhlRate;
         }
 
         function saveExchangeRates() {
             const sekValue = document.getElementById('sek-rate').value;
             const euroValue = document.getElementById('euro-rate').value;
+            const dhlValue = document.getElementById('dhl-multiplier').value;
             
             // 값을 브라우저 로컬 스토리지에 저장
             localStorage.setItem('skf_sek_rate', sekValue);
             localStorage.setItem('skf_euro_rate', euroValue);
+            localStorage.setItem('skf_dhl_rate', dhlValue); // DHL 비율 추가 저장
 
             // 저장 완료 메시지 표시 후 2초 뒤 숨김
             const msgElement = document.getElementById('save-msg');
@@ -339,7 +346,7 @@
             { net: 83, gross: 107.9, sealy: null }, { net: 84, gross: 109.2, sealy: null }, { net: 85, gross: 110.5, sealy: null }, { net: 86, gross: 111.8, sealy: null }, { net: 87, gross: 113.1, sealy: null }, { net: 88, gross: 114.4, sealy: null }, { net: 89, gross: 115.7, sealy: null }, { net: 90, gross: 117.0, sealy: null }, { net: 91, gross: 118.3, sealy: null }, { net: 92, gross: 119.6, sealy: null },
             { net: 93, gross: 120.9, sealy: null }, { net: 94, gross: 122.2, sealy: null }, { net: 95, gross: 123.5, sealy: null }, { net: 96, gross: 124.8, sealy: null }, { net: 97, gross: 126.1, sealy: null }, { net: 98, gross: 127.4, sealy: null }, { net: 99, gross: 128.7, sealy: null }, { net: 100, gross: 130.0, sealy: null }, { net: 101, gross: 130.3, sealy: null }, { net: 102, gross: 131.6, sealy: null },
             { net: 103, gross: 132.9, sealy: null }, { net: 104, gross: 134.2, sealy: null }, { net: 105, gross: 135.5, sealy: null }, { net: 106, gross: 136.7, sealy: null }, { net: 107, gross: 138.0, sealy: null }, { net: 108, gross: 139.3, sealy: null }, { net: 109, gross: 140.6, sealy: null }, { net: 110, gross: 141.9, sealy: null }, { net: 111, gross: 142.1, sealy: null }, { net: 112, gross: 143.4, sealy: null },
-            { net: 113, gross: 144.6, sealy: null }, { net: 114, gross: 145.9, sealy: null }, { net: 115, gross: 147.2, sealy: null }, { net: 116, gross: 148.5, sealy: null }, { net: 117, gross: 149.8, sealy: null }, { net: 118, gross: 151.0, sealy: null }, { net: 119, gross: 152.3, sealy: null }, { net: 120, gross: 153.6, sealy: null }, { net: 121, gross: 153.7, sealy: null }, { net: 122, gross: 154.9, sealy: null },
+            { net: 113, gross: 144.6, sealy: null }, { net: 114, gross: 145.9, sealy: null }, { net: 115, gross: 147.2, sealy: null }, { net: 116, gross: 148.5, sealy: null }, { net: 117, gross: 149.8, sealy: null }, { net: 118, gross: 151.0, sealy: null }, { net: 119, gross: 152.3, sealy: null }, { 120: null, net: 120, gross: 153.6, sealy: null }, { net: 121, gross: 153.7, sealy: null }, { net: 122, gross: 154.9, sealy: null },
             { net: 123, gross: 156.2, sealy: null }, { net: 124, gross: 157.5, sealy: null }, { net: 125, gross: 158.8, sealy: null }, { net: 126, gross: 160.0, sealy: null }, { net: 127, gross: 161.3, sealy: null }, { net: 128, gross: 162.6, sealy: null }, { net: 129, gross: 163.8, sealy: null }, { net: 130, gross: 165.1, sealy: null }, { net: 131, gross: 165.1, sealy: null }, { net: 132, gross: 166.3, sealy: null },
             { net: 133, gross: 167.6, sealy: null }, { net: 134, gross: 168.8, sealy: null }, { net: 135, gross: 170.1, sealy: null }, { net: 136, gross: 171.4, sealy: null }, { net: 137, gross: 172.6, sealy: null }, { net: 138, gross: 173.9, sealy: null }, { net: 139, gross: 175.1, sealy: null }, { net: 140, gross: 176.4, sealy: null }, { net: 141, gross: 176.5, sealy: null }, { net: 142, gross: 177.5, sealy: null },
             { net: 143, gross: 178.8, sealy: null }, { net: 144, gross: 180.0, sealy: null }, { net: 145, gross: 181.3, sealy: null }, { net: 146, gross: 182.5, sealy: null }, { net: 147, gross: 183.8, sealy: null }, { net: 148, gross: 185.0, sealy: null }, { net: 149, gross: 186.3, sealy: null }, { net: 150, gross: 187.5, sealy: null }, { net: 151, gross: 187.5, sealy: null }, { net: 152, gross: 188.8, sealy: null },
@@ -349,6 +356,7 @@
             { net: 183, gross: 222.0, sealy: null }, { net: 184, gross: 223.2, sealy: null }, { net: 185, gross: 224.5, sealy: null }, { net: 186, gross: 225.7, sealy: null }, { net: 187, gross: 226.9, sealy: null }, { net: 188, gross: 228.1, sealy: null }, { net: 189, gross: 229.3, sealy: null }, { net: 190, gross: 230.5, sealy: null }, { net: 191, gross: 230.5, sealy: null }, { net: 192, gross: 230.5, sealy: null }
         ];
 
+        // 원본(Base) DHL 요금표
         const dhlChargeTable = [
             { weight: 0.5, NEA: 57400, MYS: 64300, USA: 57600 }, { weight: 1, NEA: 65400, MYS: 73200, USA: 65700 }, { weight: 1.5, NEA: 69500, MYS: 80300, USA: 72300 }, { weight: 2, NEA: 73600, MYS: 87400, USA: 78900 }, { weight: 2.5, NEA: 77600, MYS: 94300, USA: 85100 }, { weight: 3, NEA: 80800, MYS: 100400, USA: 91100 }, { weight: 3.5, NEA: 84000, MYS: 106500, USA: 97000 }, { weight: 4, NEA: 87200, MYS: 112500, USA: 103000 }, { weight: 4.5, NEA: 90400, MYS: 118600, USA: 108900 }, { weight: 5, NEA: 93600, MYS: 124700, USA: 114900 },
             { weight: 5.5, NEA: 96600, MYS: 130100, USA: 120200 }, { weight: 6, NEA: 99600, MYS: 135600, USA: 125600 }, { weight: 6.5, NEA: 102600, MYS: 141000, USA: 130900 }, { weight: 7, NEA: 105600, MYS: 146500, USA: 136300 }, { weight: 7.5, NEA: 108600, MYS: 151900, USA: 141600 }, { weight: 8, NEA: 111600, MYS: 157400, USA: 147000 }, { weight: 8.5, NEA: 114600, MYS: 162800, USA: 152300 }, { weight: 9, NEA: 117600, MYS: 168300, USA: 157700 }, { weight: 9.5, NEA: 120700, MYS: 173700, USA: 163000 }, { weight: 10, NEA: 123700, MYS: 179200, USA: 168400 },
@@ -548,7 +556,15 @@
             let finalFare = 0;
 
             if(type === 'DHL') {
-                finalFare = vlookupDhlCharge(totalFinalWeight, dhlChargeTable, dest);
+                // 1. 원본 테이블에서 기본 운임 가져오기
+                const baseFare = vlookupDhlCharge(totalFinalWeight, dhlChargeTable, dest);
+                
+                // 2. 사용자가 입력한 'DHL 비율' 가져와서 곱하기
+                const dhlRateInput = parseFloat(document.getElementById('dhl-multiplier').value) || 100;
+                const dhlMultiplier = dhlRateInput / 100; // (예: 100 입력시 1.0 곱함, 89.9 입력시 0.899 곱함)
+                
+                finalFare = baseFare * dhlMultiplier;
+
                 if(anyLithium) finalFare += 7399;
             } else {
                 const sekRate = parseFloat(document.getElementById('sek-rate').value) || 147.93;
