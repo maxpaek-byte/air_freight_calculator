@@ -216,7 +216,7 @@
             </tr>
             <tr>
                 <td class="text-left" style="font-weight: 600;">DHL 적용 비율(%)<br><span style="font-size:11px; color:#666; font-weight:normal;">(예: 7.9% 인상시 107.9)</span></td>
-                <td class="bg-blue"><input type="number" id="dhl-multiplier" value="100" step="0.1"></td>
+                <td class="bg-blue"><input type="number" id="dhl-multiplier" value="107.9" step="0.1"></td>
             </tr>
         </table>
 
@@ -305,7 +305,8 @@
         function loadExchangeRates() {
             const savedSek = localStorage.getItem('skf_sek_rate');
             const savedEuro = localStorage.getItem('skf_euro_rate');
-            const savedDhlRate = localStorage.getItem('skf_dhl_rate'); 
+            // 이전 버전의 100 비율을 무시하기 위해 키값을 v2로 변경
+            const savedDhlRate = localStorage.getItem('skf_dhl_rate_v2'); 
             
             if (savedSek) document.getElementById('sek-rate').value = savedSek;
             if (savedEuro) document.getElementById('euro-rate').value = savedEuro;
@@ -319,7 +320,7 @@
             
             localStorage.setItem('skf_sek_rate', sekValue);
             localStorage.setItem('skf_euro_rate', euroValue);
-            localStorage.setItem('skf_dhl_rate', dhlValue); 
+            localStorage.setItem('skf_dhl_rate_v2', dhlValue); 
 
             const msgElement = document.getElementById('save-msg');
             msgElement.style.display = 'block';
@@ -353,7 +354,7 @@
             { net: 183, gross: 222.0, sealy: null }, { net: 184, gross: 223.2, sealy: null }, { net: 185, gross: 224.5, sealy: null }, { net: 186, gross: 225.7, sealy: null }, { net: 187, gross: 226.9, sealy: null }, { net: 188, gross: 228.1, sealy: null }, { net: 189, gross: 229.3, sealy: null }, { net: 190, gross: 230.5, sealy: null }, { net: 191, gross: 230.5, sealy: null }, { net: 192, gross: 230.5, sealy: null }
         ];
 
-        // 원본(Base) DHL 요금표
+        // 원본(Base) 2025 DHL 요금표
         const dhlChargeTable = [
             { weight: 0.5, NEA: 57400, MYS: 64300, USA: 57600 }, { weight: 1, NEA: 65400, MYS: 73200, USA: 65700 }, { weight: 1.5, NEA: 69500, MYS: 80300, USA: 72300 }, { weight: 2, NEA: 73600, MYS: 87400, USA: 78900 }, { weight: 2.5, NEA: 77600, MYS: 94300, USA: 85100 }, { weight: 3, NEA: 80800, MYS: 100400, USA: 91100 }, { weight: 3.5, NEA: 84000, MYS: 106500, USA: 97000 }, { weight: 4, NEA: 87200, MYS: 112500, USA: 103000 }, { weight: 4.5, NEA: 90400, MYS: 118600, USA: 108900 }, { weight: 5, NEA: 93600, MYS: 124700, USA: 114900 },
             { weight: 5.5, NEA: 96600, MYS: 130100, USA: 120200 }, { weight: 6, NEA: 99600, MYS: 135600, USA: 125600 }, { weight: 6.5, NEA: 102600, MYS: 141000, USA: 130900 }, { weight: 7, NEA: 105600, MYS: 146500, USA: 136300 }, { weight: 7.5, NEA: 108600, MYS: 151900, USA: 141600 }, { weight: 8, NEA: 111600, MYS: 157400, USA: 147000 }, { weight: 8.5, NEA: 114600, MYS: 162800, USA: 152300 }, { weight: 9, NEA: 117600, MYS: 168300, USA: 157700 }, { weight: 9.5, NEA: 120700, MYS: 173700, USA: 163000 }, { weight: 10, NEA: 123700, MYS: 179200, USA: 168400 },
@@ -554,13 +555,18 @@
 
             if(type === 'DHL') {
                 const baseFare = vlookupDhlCharge(totalFinalWeight, dhlChargeTable, dest);
-                const dhlRateInput = parseFloat(document.getElementById('dhl-multiplier').value) || 100;
-                const dhlMultiplier = dhlRateInput / 100;
                 
-                // 적용 비율 곱한 뒤 100원 단위로 반올림 처리 (예: 181,703원 -> 181,700원)
-                finalFare = Math.round((baseFare * dhlMultiplier) / 100) * 100;
+                // 적용 비율 가져오기 (입력이 잘못되었을 경우 107.9 기본값 사용)
+                const dhlRateInput = parseFloat(document.getElementById('dhl-multiplier').value);
+                const multiplierValue = isNaN(dhlRateInput) ? 107.9 : dhlRateInput;
+                const dhlMultiplier = multiplierValue / 100;
+                
+                finalFare = baseFare * dhlMultiplier;
 
                 if(anyLithium) finalFare += 7399;
+                
+                // [수정 완료] 최종 운임을 100원 단위로 반올림
+                finalFare = Math.round(finalFare / 100) * 100;
             } else {
                 const sekRate = parseFloat(document.getElementById('sek-rate').value) || 147.93;
                 const euroRate = parseFloat(document.getElementById('euro-rate').value) || 1633.53;
@@ -598,8 +604,10 @@
                     finalFare = (costToInvoice * lane.final.factor1 * sekRate) + (chargeableWeight * (lane.final.factor2||0) * euroRate) + lane.final.const;
                 }
                 
-                // 기존 AIR 로직: 백원 단위 올림(roundup) 처리 유지
-                finalFare = roundup(finalFare, -2) + (liSurcharge * euroRate);
+                finalFare = finalFare + (liSurcharge * euroRate);
+
+                // [수정 완료] 최종 운임을 100원 단위로 반올림
+                finalFare = Math.round(finalFare / 100) * 100;
             }
 
             fareEl.innerText = Math.round(finalFare).toLocaleString() + " 원";
