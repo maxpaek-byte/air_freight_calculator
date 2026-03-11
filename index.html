@@ -215,7 +215,7 @@
                 <td class="bg-blue"><input type="number" id="euro-rate" value="1633.53" step="0.01"></td>
             </tr>
             <tr>
-                <td class="text-left" style="font-weight: 600;">DHL 적용 비율(%)<br><span style="font-size:11px; color:#666; font-weight:normal;">(예: 10%할인시 90 입력)</span></td>
+                <td class="text-left" style="font-weight: 600;">DHL 적용 비율(%)<br><span style="font-size:11px; color:#666; font-weight:normal;">(예: 7.9% 인상시 107.9)</span></td>
                 <td class="bg-blue"><input type="number" id="dhl-multiplier" value="100" step="0.1"></td>
             </tr>
         </table>
@@ -305,9 +305,8 @@
         function loadExchangeRates() {
             const savedSek = localStorage.getItem('skf_sek_rate');
             const savedEuro = localStorage.getItem('skf_euro_rate');
-            const savedDhlRate = localStorage.getItem('skf_dhl_rate'); // DHL 비율 추가
+            const savedDhlRate = localStorage.getItem('skf_dhl_rate'); 
             
-            // 로컬 스토리지에 저장된 값이 있으면 덮어쓰기 (없으면 HTML 기본값 유지)
             if (savedSek) document.getElementById('sek-rate').value = savedSek;
             if (savedEuro) document.getElementById('euro-rate').value = savedEuro;
             if (savedDhlRate) document.getElementById('dhl-multiplier').value = savedDhlRate;
@@ -318,12 +317,10 @@
             const euroValue = document.getElementById('euro-rate').value;
             const dhlValue = document.getElementById('dhl-multiplier').value;
             
-            // 값을 브라우저 로컬 스토리지에 저장
             localStorage.setItem('skf_sek_rate', sekValue);
             localStorage.setItem('skf_euro_rate', euroValue);
-            localStorage.setItem('skf_dhl_rate', dhlValue); // DHL 비율 추가 저장
+            localStorage.setItem('skf_dhl_rate', dhlValue); 
 
-            // 저장 완료 메시지 표시 후 2초 뒤 숨김
             const msgElement = document.getElementById('save-msg');
             msgElement.style.display = 'block';
             setTimeout(() => {
@@ -346,7 +343,7 @@
             { net: 83, gross: 107.9, sealy: null }, { net: 84, gross: 109.2, sealy: null }, { net: 85, gross: 110.5, sealy: null }, { net: 86, gross: 111.8, sealy: null }, { net: 87, gross: 113.1, sealy: null }, { net: 88, gross: 114.4, sealy: null }, { net: 89, gross: 115.7, sealy: null }, { net: 90, gross: 117.0, sealy: null }, { net: 91, gross: 118.3, sealy: null }, { net: 92, gross: 119.6, sealy: null },
             { net: 93, gross: 120.9, sealy: null }, { net: 94, gross: 122.2, sealy: null }, { net: 95, gross: 123.5, sealy: null }, { net: 96, gross: 124.8, sealy: null }, { net: 97, gross: 126.1, sealy: null }, { net: 98, gross: 127.4, sealy: null }, { net: 99, gross: 128.7, sealy: null }, { net: 100, gross: 130.0, sealy: null }, { net: 101, gross: 130.3, sealy: null }, { net: 102, gross: 131.6, sealy: null },
             { net: 103, gross: 132.9, sealy: null }, { net: 104, gross: 134.2, sealy: null }, { net: 105, gross: 135.5, sealy: null }, { net: 106, gross: 136.7, sealy: null }, { net: 107, gross: 138.0, sealy: null }, { net: 108, gross: 139.3, sealy: null }, { net: 109, gross: 140.6, sealy: null }, { net: 110, gross: 141.9, sealy: null }, { net: 111, gross: 142.1, sealy: null }, { net: 112, gross: 143.4, sealy: null },
-            { net: 113, gross: 144.6, sealy: null }, { net: 114, gross: 145.9, sealy: null }, { net: 115, gross: 147.2, sealy: null }, { net: 116, gross: 148.5, sealy: null }, { net: 117, gross: 149.8, sealy: null }, { net: 118, gross: 151.0, sealy: null }, { net: 119, gross: 152.3, sealy: null }, { 120: null, net: 120, gross: 153.6, sealy: null }, { net: 121, gross: 153.7, sealy: null }, { net: 122, gross: 154.9, sealy: null },
+            { net: 113, gross: 144.6, sealy: null }, { net: 114, gross: 145.9, sealy: null }, { net: 115, gross: 147.2, sealy: null }, { net: 116, gross: 148.5, sealy: null }, { net: 117, gross: 149.8, sealy: null }, { net: 118, gross: 151.0, sealy: null }, { net: 119, gross: 152.3, sealy: null }, { net: 120, gross: 153.6, sealy: null }, { net: 121, gross: 153.7, sealy: null }, { net: 122, gross: 154.9, sealy: null },
             { net: 123, gross: 156.2, sealy: null }, { net: 124, gross: 157.5, sealy: null }, { net: 125, gross: 158.8, sealy: null }, { net: 126, gross: 160.0, sealy: null }, { net: 127, gross: 161.3, sealy: null }, { net: 128, gross: 162.6, sealy: null }, { net: 129, gross: 163.8, sealy: null }, { net: 130, gross: 165.1, sealy: null }, { net: 131, gross: 165.1, sealy: null }, { net: 132, gross: 166.3, sealy: null },
             { net: 133, gross: 167.6, sealy: null }, { net: 134, gross: 168.8, sealy: null }, { net: 135, gross: 170.1, sealy: null }, { net: 136, gross: 171.4, sealy: null }, { net: 137, gross: 172.6, sealy: null }, { net: 138, gross: 173.9, sealy: null }, { net: 139, gross: 175.1, sealy: null }, { net: 140, gross: 176.4, sealy: null }, { net: 141, gross: 176.5, sealy: null }, { net: 142, gross: 177.5, sealy: null },
             { net: 143, gross: 178.8, sealy: null }, { net: 144, gross: 180.0, sealy: null }, { net: 145, gross: 181.3, sealy: null }, { net: 146, gross: 182.5, sealy: null }, { net: 147, gross: 183.8, sealy: null }, { net: 148, gross: 185.0, sealy: null }, { net: 149, gross: 186.3, sealy: null }, { net: 150, gross: 187.5, sealy: null }, { net: 151, gross: 187.5, sealy: null }, { net: 152, gross: 188.8, sealy: null },
@@ -556,14 +553,12 @@
             let finalFare = 0;
 
             if(type === 'DHL') {
-                // 1. 원본 테이블에서 기본 운임 가져오기
                 const baseFare = vlookupDhlCharge(totalFinalWeight, dhlChargeTable, dest);
-                
-                // 2. 사용자가 입력한 'DHL 비율' 가져와서 곱하기
                 const dhlRateInput = parseFloat(document.getElementById('dhl-multiplier').value) || 100;
-                const dhlMultiplier = dhlRateInput / 100; // (예: 100 입력시 1.0 곱함, 89.9 입력시 0.899 곱함)
+                const dhlMultiplier = dhlRateInput / 100;
                 
-                finalFare = baseFare * dhlMultiplier;
+                // 적용 비율 곱한 뒤 100원 단위로 반올림 처리 (예: 181,703원 -> 181,700원)
+                finalFare = Math.round((baseFare * dhlMultiplier) / 100) * 100;
 
                 if(anyLithium) finalFare += 7399;
             } else {
@@ -602,6 +597,8 @@
                 } else {
                     finalFare = (costToInvoice * lane.final.factor1 * sekRate) + (chargeableWeight * (lane.final.factor2||0) * euroRate) + lane.final.const;
                 }
+                
+                // 기존 AIR 로직: 백원 단위 올림(roundup) 처리 유지
                 finalFare = roundup(finalFare, -2) + (liSurcharge * euroRate);
             }
 
