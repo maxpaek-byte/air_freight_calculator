@@ -196,7 +196,6 @@
             color: var(--skf-blue);
         }
 
-        /* 에러 표시용 툴팁 힌트 커서 */
         .cell-net[title] {
             cursor: help;
             text-decoration: underline dotted #d9534f;
@@ -742,7 +741,7 @@
                     }
                 });
 
-                // API 조회 연동 (에러 표시 개선 및 다중 프록시 폴백 적용)
+                // API 조회 연동
                 const inputPn = tr.querySelector('.input-pn');
                 inputPn.addEventListener('blur', async () => {
                     const pn = inputPn.value.trim().toUpperCase(); 
@@ -752,7 +751,6 @@
                         tr.dataset.lastPn = pn;
                         const netCell = tr.querySelector('.cell-net');
                         
-                        // 초기화 (이전 에러 상태 리셋)
                         netCell.innerText = '조회중...';
                         netCell.style.color = '#004D7E'; 
                         netCell.title = '';
@@ -764,7 +762,6 @@
                             calcRow(tr, type);
                             calculateTotal(type);
                         } catch (e) {
-                            // 에러 발생 시 UI에 붉은색 '에러' 텍스트 표시 및 툴팁으로 원인 제공
                             netCell.innerText = '에러';
                             netCell.style.color = '#d9534f'; 
                             netCell.title = e.message; 
@@ -868,7 +865,6 @@
 
                 if(anyLithium) finalFare += 7399;
                 
-                // 최종 요금을 무조건 100원 단위로 반올림
                 finalFare = Math.round(finalFare / 100) * 100;
             } else {
                 const sekRate = parseFloat(document.getElementById('sek-rate').value) || 147.93;
@@ -909,43 +905,54 @@
                 
                 finalFare = finalFare + (liSurcharge * euroRate);
 
-                // AIR 역시 무조건 100원 단위로 반올림
                 finalFare = Math.round(finalFare / 100) * 100;
             }
 
             fareEl.innerText = Math.round(finalFare).toLocaleString() + " 원";
         }
 
-        // --- 다중 프록시 폴백(Fallback)을 적용한 API 통신 함수 ---
+        // --- 다중 프록시 폴백을 적용한 API 통신 함수 ---
         async function fetchNetWeight(productNumber) {
             const API_URL = 'https://skf-api-external-eu20-tyvvw4iy.prod.apimanagement.eu20.hana.ondemand.com/v1/pim/details';
             const API_KEY = "8fr8GLoZka76NjdwEtBoQD7T1Yh3mDM2";
             const targetUrl = new URL(API_URL);
             targetUrl.searchParams.append('designation', productNumber);
+            const rawUrl = targetUrl.toString();
 
-            // 무료 프록시 서버 여러 개를 설정 (하나가 죽으면 다음 프록시로 재시도)
+            // 순차적으로 시도할 프록시 서버 목록 (1번이 죽으면 2번, 2번 죽으면 3번 시도)
             const proxies = [
-                'https://corsproxy.io/?',
-                'https://api.codetabs.com/v1/proxy?quest='
+                { url: 'https://corsproxy.io/?', encode: true },
+                { url: 'https://thingproxy.freeboard.io/fetch/', encode: false },
+                { url: 'https://api.codetabs.com/v1/proxy?quest=', encode: false }
             ];
 
             let lastErrorMsg = "";
 
             for (const proxy of proxies) {
                 try {
-                    const finalUrl = proxy + encodeURIComponent(targetUrl.toString());
+                    const finalUrl = proxy.url + (proxy.encode ? encodeURIComponent(rawUrl) : rawUrl);
+                    
+                    // 프록시당 5초 타임아웃 설정
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
                     const response = await fetch(finalUrl, {
-                        headers: { "APIKey": API_KEY, "Accept": "application/json" }
+                        headers: { 
+                            "APIKey": API_KEY, 
+                            "Accept": "application/json" 
+                        },
+                        signal: controller.signal
                     });
 
+                    clearTimeout(timeoutId);
+
                     if (!response.ok) {
-                        const err = await response.json().catch(()=>null);
-                        throw new Error(err?.error || `HTTP 통신 에러 (${response.status})`);
+                        throw new Error(`HTTP 통신 에러 (${response.status})`);
                     }
 
                     const data = await response.json();
                     const documents = data?.documentList?.documents;
-                    if (!documents || documents.length === 0) throw new Error("입력하신 제품이 서버에 존재하지 않습니다.");
+                    if (!documents || documents.length === 0) throw new Error("제품을 찾을 수 없습니다.");
 
                     const techData = documents[0]?.technical_data;
                     if (!techData) throw new Error("기술 데이터가 없습니다.");
@@ -953,7 +960,7 @@
                     let weight = null;
                     let unit = 'kg';
 
-                    // API 구조 변동을 대비해 모든 섹션에서 ID를 유연하게 탐색
+                    // 데이터 구조가 변동될 수 있으므로 전역 탐색
                     for (const section of techData) {
                         const weightRow = section?.rows?.find(r => r.id === "FR_PRODUCT_NET_WEIGHT");
                         if (weightRow) {
@@ -967,14 +974,20 @@
                     return unit.toLowerCase() === 'g' ? parseFloat(weight) / 1000 : parseFloat(weight);
 
                 } catch (error) {
-                    lastErrorMsg = error.message;
-                    console.warn(`Proxy [${proxy}] 실패:`, error);
-                    // 에러가 발생해도 중단하지 않고 다음 프록시(루프)로 넘어감
+                    if (error.name === 'AbortError') {
+                        lastErrorMsg = "서버 응답 지연(타임아웃)";
+                    } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                        lastErrorMsg = "프록시 서버 연결 차단(CORS)";
+                    } else {
+                        lastErrorMsg = error.message;
+                    }
+                    console.warn(`[${proxy.url}] 접속 실패:`, lastErrorMsg);
+                    // 실패 시 에러를 던지지 않고 다음 루프(대체 프록시)로 넘어감
                 }
             }
             
-            // 모든 프록시 서버가 실패했을 경우 최종 에러 반환
-            throw new Error(lastErrorMsg || "네트워크 문제로 API 서버에 접근할 수 없습니다.");
+            // 준비된 모든 프록시가 실패했을 경우
+            throw new Error(`통신 실패: ${lastErrorMsg}. 잠시 후 다시 시도해주세요.`);
         }
 
         // 초기 구동
