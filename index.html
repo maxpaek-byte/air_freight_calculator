@@ -195,10 +195,14 @@
             font-size: 15px;
             color: var(--skf-blue);
         }
-
-        .cell-net[title] {
-            cursor: help;
-            text-decoration: underline dotted #d9534f;
+        
+        /* 에러 발생 시 입력창 스타일 */
+        .input-error {
+            border: 1px solid #d9534f !important;
+            background-color: #fdf3f2 !important;
+        }
+        .input-error::placeholder {
+            color: #d9534f;
         }
     </style>
 </head>
@@ -725,23 +729,22 @@
                     <td class="bg-blue"><input type="checkbox" class="chk-seal"></td>
                     <td class="bg-blue"><input type="checkbox" class="chk-li"></td>
                     <td class="bg-blue"><input type="number" class="input-qty no-border" value="" min="1" placeholder="수량"></td>
-                    <td class="cell-net bg-yellow"></td>
+                    <td class="bg-blue"><input type="number" class="input-net no-border" value="" step="0.001" placeholder="순중량"></td>
                     <td class="bg-blue"><input type="checkbox" class="chk-over8"></td>
                     <td class="cell-applied bg-yellow"></td>
                     <td class="cell-final bg-yellow"></td>
                 `;
                 tbody.appendChild(tr);
 
-                // Row 이벤트 바인딩
                 const inputs = tr.querySelectorAll('input');
                 inputs.forEach(inp => {
                     inp.addEventListener('change', () => calcRow(tr, type));
-                    if(inp.classList.contains('input-qty')) {
+                    if(inp.classList.contains('input-qty') || inp.classList.contains('input-net')) {
                         inp.addEventListener('input', () => calcRow(tr, type));
                     }
                 });
 
-                // API 조회 연동
+                // API 조회 연동 (다중 프록시 폴백 및 수동 입력 지원)
                 const inputPn = tr.querySelector('.input-pn');
                 inputPn.addEventListener('blur', async () => {
                     const pn = inputPn.value.trim().toUpperCase(); 
@@ -749,22 +752,24 @@
 
                     if(pn && pn !== tr.dataset.lastPn) {
                         tr.dataset.lastPn = pn;
-                        const netCell = tr.querySelector('.cell-net');
+                        const netInput = tr.querySelector('.input-net');
                         
-                        netCell.innerText = '조회중...';
-                        netCell.style.color = '#004D7E'; 
-                        netCell.title = '';
+                        netInput.placeholder = '조회중...';
+                        netInput.value = '';
+                        netInput.classList.remove('input-error');
+                        netInput.title = '';
 
                         try {
                             const netWeight = await fetchNetWeight(pn);
-                            netCell.innerText = netWeight.toFixed(3);
+                            netInput.value = netWeight.toFixed(3);
                             if(netWeight > 8) tr.querySelector('.chk-over8').checked = true;
                             calcRow(tr, type);
                             calculateTotal(type);
                         } catch (e) {
-                            netCell.innerText = '에러';
-                            netCell.style.color = '#d9534f'; 
-                            netCell.title = e.message; 
+                            // 에러 시 수동 입력을 유도하도록 UI 변경
+                            netInput.placeholder = '에러(직접입력)';
+                            netInput.classList.add('input-error');
+                            netInput.title = e.message + " (중량을 직접 타이핑하세요)";
                             console.error(e.message);
                             calcRow(tr, type);
                             calculateTotal(type);
@@ -796,12 +801,13 @@
         };
 
         function calcRow(tr, type) {
-            const netText = tr.querySelector('.cell-net').innerText;
+            // 순중량을 이제 텍스트 셀이 아닌 사용자가 수정 가능한 input에서 가져옵니다.
+            const netText = tr.querySelector('.input-net').value;
             const qty = parseInt(tr.querySelector('.input-qty').value) || 0;
             const isSeal = tr.querySelector('.chk-seal').checked;
             const over8 = tr.querySelector('.chk-over8').checked;
 
-            if(!netText || netText === '조회중...' || netText === 'N/A' || netText === '에러' || qty === 0) {
+            if(!netText || isNaN(parseFloat(netText)) || qty === 0) {
                 tr.querySelector('.cell-applied').innerText = '';
                 tr.querySelector('.cell-final').innerText = '';
                 return;
@@ -919,11 +925,11 @@
             targetUrl.searchParams.append('designation', productNumber);
             const rawUrl = targetUrl.toString();
 
-            // 순차적으로 시도할 프록시 서버 목록 (1번이 죽으면 2번, 2번 죽으면 3번 시도)
+            // 순차적으로 시도할 프록시 서버 목록 (가장 안정적인 allorigins 최상단 배치)
             const proxies = [
+                { url: 'https://api.allorigins.win/raw?url=', encode: true },
                 { url: 'https://corsproxy.io/?', encode: true },
-                { url: 'https://thingproxy.freeboard.io/fetch/', encode: false },
-                { url: 'https://api.codetabs.com/v1/proxy?quest=', encode: false }
+                { url: 'https://thingproxy.freeboard.io/fetch/', encode: false }
             ];
 
             let lastErrorMsg = "";
@@ -932,9 +938,8 @@
                 try {
                     const finalUrl = proxy.url + (proxy.encode ? encodeURIComponent(rawUrl) : rawUrl);
                     
-                    // 프록시당 5초 타임아웃 설정
                     const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 5000);
+                    const timeoutId = setTimeout(() => controller.abort(), 6000);
 
                     const response = await fetch(finalUrl, {
                         headers: { 
@@ -947,12 +952,12 @@
                     clearTimeout(timeoutId);
 
                     if (!response.ok) {
-                        throw new Error(`HTTP 통신 에러 (${response.status})`);
+                        throw new Error(`HTTP 에러 (${response.status})`);
                     }
 
                     const data = await response.json();
                     const documents = data?.documentList?.documents;
-                    if (!documents || documents.length === 0) throw new Error("제품을 찾을 수 없습니다.");
+                    if (!documents || documents.length === 0) throw new Error("서버에 등록되지 않은 형번입니다.");
 
                     const techData = documents[0]?.technical_data;
                     if (!techData) throw new Error("기술 데이터가 없습니다.");
@@ -960,7 +965,6 @@
                     let weight = null;
                     let unit = 'kg';
 
-                    // 데이터 구조가 변동될 수 있으므로 전역 탐색
                     for (const section of techData) {
                         const weightRow = section?.rows?.find(r => r.id === "FR_PRODUCT_NET_WEIGHT");
                         if (weightRow) {
@@ -970,24 +974,24 @@
                         }
                     }
 
-                    if (weight == null) throw new Error("해당 제품의 순중량 데이터가 없습니다.");
+                    if (weight == null) throw new Error("순중량 데이터가 없습니다.");
                     return unit.toLowerCase() === 'g' ? parseFloat(weight) / 1000 : parseFloat(weight);
 
                 } catch (error) {
                     if (error.name === 'AbortError') {
-                        lastErrorMsg = "서버 응답 지연(타임아웃)";
+                        lastErrorMsg = "응답 지연(타임아웃)";
                     } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-                        lastErrorMsg = "프록시 서버 연결 차단(CORS)";
+                        lastErrorMsg = "서버 연결 차단";
                     } else {
                         lastErrorMsg = error.message;
                     }
-                    console.warn(`[${proxy.url}] 접속 실패:`, lastErrorMsg);
-                    // 실패 시 에러를 던지지 않고 다음 루프(대체 프록시)로 넘어감
+                    console.warn(`[${proxy.url}] 실패:`, lastErrorMsg);
+                    // 에러 시 다음 프록시로 넘어감
                 }
             }
             
-            // 준비된 모든 프록시가 실패했을 경우
-            throw new Error(`통신 실패: ${lastErrorMsg}. 잠시 후 다시 시도해주세요.`);
+            // 모든 통신망이 죽었을 경우 최종 반환 에러
+            throw new Error(`조회 실패: ${lastErrorMsg}`);
         }
 
         // 초기 구동
