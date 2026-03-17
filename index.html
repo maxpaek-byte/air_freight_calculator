@@ -917,81 +917,53 @@
             fareEl.innerText = Math.round(finalFare).toLocaleString() + " 원";
         }
 
-        // --- 다중 프록시 폴백을 적용한 API 통신 함수 ---
+       // --- Cloudflare Worker를 통한 안정적인 API 통신 함수 ---
         async function fetchNetWeight(productNumber) {
-            const API_URL = 'https://skf-api-external-eu20-tyvvw4iy.prod.apimanagement.eu20.hana.ondemand.com/v1/pim/details';
-            const API_KEY = "8fr8GLoZka76NjdwEtBoQD7T1Yh3mDM2";
-            const targetUrl = new URL(API_URL);
-            targetUrl.searchParams.append('designation', productNumber);
-            const rawUrl = targetUrl.toString();
+            // ✅ 본인의 Cloudflare Worker URL (weathered-lab-9c65는 화면에서 확인된 이름)
+            const WORKER_URL = 'https://weathered-lab-9c65.maxpaek.workers.dev';
 
-            // 순차적으로 시도할 프록시 서버 목록 (가장 안정적인 allorigins 최상단 배치)
-            const proxies = [
-                { url: 'https://api.allorigins.win/raw?url=', encode: true },
-                { url: 'https://corsproxy.io/?', encode: true },
-                { url: 'https://thingproxy.freeboard.io/fetch/', encode: false }
-            ];
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 8000);
 
-            let lastErrorMsg = "";
+            try {
+                const response = await fetch(
+                    `${WORKER_URL}?designation=${encodeURIComponent(productNumber)}`,
+                    { signal: controller.signal }
+                );
+                clearTimeout(timeoutId);
 
-            for (const proxy of proxies) {
-                try {
-                    const finalUrl = proxy.url + (proxy.encode ? encodeURIComponent(rawUrl) : rawUrl);
-                    
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 6000);
+                if (!response.ok) throw new Error(`HTTP 에러 (${response.status})`);
 
-                    const response = await fetch(finalUrl, {
-                        headers: { 
-                            "APIKey": API_KEY, 
-                            "Accept": "application/json" 
-                        },
-                        signal: controller.signal
-                    });
+                const data = await response.json();
+                const documents = data?.documentList?.documents;
+                if (!documents || documents.length === 0)
+                    throw new Error('서버에 등록되지 않은 형번입니다.');
 
-                    clearTimeout(timeoutId);
+                const techData = documents[0]?.technical_data;
+                if (!techData) throw new Error('기술 데이터가 없습니다.');
 
-                    if (!response.ok) {
-                        throw new Error(`HTTP 에러 (${response.status})`);
+                let weight = null;
+                let unit = 'kg';
+
+                for (const section of techData) {
+                    const weightRow = section?.rows?.find(r => r.id === 'FR_PRODUCT_NET_WEIGHT');
+                    if (weightRow) {
+                        weight = weightRow.value;
+                        unit = weightRow.unit || 'kg';
+                        break;
                     }
-
-                    const data = await response.json();
-                    const documents = data?.documentList?.documents;
-                    if (!documents || documents.length === 0) throw new Error("서버에 등록되지 않은 형번입니다.");
-
-                    const techData = documents[0]?.technical_data;
-                    if (!techData) throw new Error("기술 데이터가 없습니다.");
-
-                    let weight = null;
-                    let unit = 'kg';
-
-                    for (const section of techData) {
-                        const weightRow = section?.rows?.find(r => r.id === "FR_PRODUCT_NET_WEIGHT");
-                        if (weightRow) {
-                            weight = weightRow.value;
-                            unit = weightRow.unit || 'kg';
-                            break;
-                        }
-                    }
-
-                    if (weight == null) throw new Error("순중량 데이터가 없습니다.");
-                    return unit.toLowerCase() === 'g' ? parseFloat(weight) / 1000 : parseFloat(weight);
-
-                } catch (error) {
-                    if (error.name === 'AbortError') {
-                        lastErrorMsg = "응답 지연(타임아웃)";
-                    } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-                        lastErrorMsg = "서버 연결 차단";
-                    } else {
-                        lastErrorMsg = error.message;
-                    }
-                    console.warn(`[${proxy.url}] 실패:`, lastErrorMsg);
-                    // 에러 시 다음 프록시로 넘어감
                 }
+
+                if (weight == null) throw new Error('순중량 데이터가 없습니다.');
+                return unit.toLowerCase() === 'g'
+                    ? parseFloat(weight) / 1000
+                    : parseFloat(weight);
+
+            } catch (error) {
+                clearTimeout(timeoutId);
+                if (error.name === 'AbortError') throw new Error('응답 지연(타임아웃)');
+                throw error;
             }
-            
-            // 모든 통신망이 죽었을 경우 최종 반환 에러
-            throw new Error(`조회 실패: ${lastErrorMsg}`);
         }
 
         // 초기 구동
