@@ -198,7 +198,7 @@
         </table>
 
         <table>
-            <tr><td colspan="9" class="section-title">DHL 배송 요금 계산</td></tr>
+            <tr><td colspan="9" class="section-title">DHL 배송 요금 계산 (복원됨)</td></tr>
             <tr>
                 <td class="text-left" style="width: 100px; font-weight: bold;">선적지 선택</td>
                 <td class="bg-blue" style="width: 150px;">
@@ -254,15 +254,15 @@
             { net: 1.1, gross: 2.7, sealy: 2.8 }, { net: 1.2, gross: 2.8, sealy: 2.9 }, { net: 1.3, gross: 2.9, sealy: 3.1 }, { net: 1.4, gross: 3, sealy: 3.2 }, { net: 1.5, gross: 3.2, sealy: 3.3 }, { net: 1.6, gross: 3.3, sealy: 3.4 }, { net: 1.7, gross: 3.4, sealy: 3.5 }, { net: 1.8, gross: 3.5, sealy: 3.7 }, { net: 1.9, gross: 3.6, sealy: 3.8 }, { net: 2, gross: 3.7, sealy: 3.9 },
             { net: 3, gross: 4.8, sealy: 5.1 }, { net: 4, gross: 5.9, sealy: 6.3 }, { net: 5, gross: 7.0, sealy: 7.5 }, { net: 6, gross: 7.8, sealy: 8.5 }, { net: 7, gross: 9.1, sealy: 9.8 }, { net: 8, gross: 10.4, sealy: 11.2 }, { net: 9, gross: 11.7, sealy: 12.6 }, { net: 10, gross: 13, sealy: 14 },
             { net: 11, gross: 14.3, sealy: null }, { net: 12, gross: 15.6, sealy: null }, { net: 13, gross: 16.9, sealy: null }, { net: 14, gross: 18.2, sealy: null }, { net: 15, gross: 19.5, sealy: null }, { net: 16, gross: 20.8, sealy: null }, { net: 17, gross: 22.1, sealy: null }, { net: 18, gross: 23.4, sealy: null }, { net: 19, gross: 24.7, sealy: null }, { net: 20, gross: 26, sealy: null },
-            { net: 25, gross: 32.5 }, { net: 30, gross: 39 }, { net: 40, gross: 52 }, { net: 50, gross: 65 }, { net: 100, gross: 130 }, { net: 150, gross: 187.5 }, { net: 200, gross: 230.5 }, { net: 300, gross: 230.5 }
+            { net: 300, gross: 390 }
         ];
 
         const dhlChargeTable = [
             { weight: 0.5, NEA: 62000, MYS: 69400, USA: 62100 }, { weight: 1, NEA: 70600, MYS: 79000, USA: 70900 }, { weight: 1.5, NEA: 75000, MYS: 86600, USA: 78000 }, { weight: 2, NEA: 79500, MYS: 94300, USA: 85100 }, { weight: 3, NEA: 87200, MYS: 108300, USA: 98300 }, { weight: 5, NEA: 100900, MYS: 134600, USA: 123900 }, { weight: 10, NEA: 133400, MYS: 193400, USA: 181700 }, { weight: 20, NEA: 194400, MYS: 279100, USA: 269900 }, { weight: 50, NEA: 454800, MYS: 649400, USA: 659500 }, { weight: 100, NEA: 909700, MYS: 1298700, USA: 1319000 }, { weight: 300, NEA: 2729700, MYS: 3895800, USA: 3957000 }
         ];
 
-        // 엑셀 Exchange Rates 탭 기준 내부 SEK 환율
-        const exInt = { 'EUR': 11.275, 'USD': 10.745, 'CNY': 1.4402, 'MYR': 2.4437, 'KRW': 0.0076, 'SEK': 1 };
+        // 엑셀 기준 내부 보정 환율 (SEK 기준)
+        const exInt = { 'EUR': 11.275, 'USD': 10.0858, 'CNY': 1.4402, 'MYR': 2.4437, 'KRW': 0.0076, 'SEK': 1 };
 
         const airLanes = {
             'ITALY': { terms: 'Door-Port', origin: { r: 0.09, min: 10, hand: 19.8, screen: 0.08, cur: 'EUR' }, air: { min: 20, rates: { 45: 1.36, over: 1.36 }, fuel: 0.03, cur: 'EUR' }, dest: { thcMin: 50000, thcKg: 150, cur: 'KRW' }, f1: 1.05, f2: 0.1, c: 161000 },
@@ -279,6 +279,8 @@
             'MALAYSIA': { terms: 'Door-Door', origin: { r: 0.35, min: 900, hand: 0.55, screen: 0.18, cur: 'MYR' }, air: { min: 1445.85, rates: { 45: 22.32, 100: 5.62, over: 4.82 }, cur: 'MYR' }, dest: { thcMin: 55000, thcKg: 170, onMin: 95000, onKg: 110, cur: 'KRW' }, f1: 1.05, f2: 0.1, c: 161000 }
         };
 
+        const roundup = (num, decimalPlaces) => { const p = Math.pow(10, decimalPlaces); return Math.ceil(num * p) / p; };
+        
         function buildRows(tid, type) {
             const b = document.getElementById(tid);
             for (let i = 0; i < 10; i++) {
@@ -291,19 +293,16 @@
                     <td class="bg-blue"><input type="number" class="input-qty no-border" value="1" min="1"></td>
                     <td class="bg-blue"><input type="number" class="input-net no-border" step="0.001" placeholder="0.000"></td>
                     <td class="bg-blue"><input type="checkbox" class="chk-over8"></td>
-                    <td class="cell-applied bg-yellow">0.00</td>
-                    <td class="cell-final bg-yellow">0.00</td>
+                    <td class="cell-applied bg-yellow">0.0</td>
+                    <td class="cell-final bg-yellow">0.0</td>
                 `;
                 b.appendChild(tr);
                 tr.querySelectorAll('input').forEach(inp => inp.addEventListener('input', () => calcRow(tr, type)));
                 tr.querySelector('.input-pn').addEventListener('blur', async (e) => {
-                    const pn = e.target.value.trim().toUpperCase();
-                    if(!pn) return; e.target.value = pn;
-                    const netIn = tr.querySelector('.input-net');
-                    netIn.placeholder = '조회중...';
+                    const pn = e.target.value.trim().toUpperCase(); if(!pn) return; e.target.value = pn;
+                    const netIn = tr.querySelector('.input-net'); netIn.placeholder = '조회중...';
                     try {
-                        const w = await fetchNetWeight(pn);
-                        netIn.value = w.toFixed(3);
+                        const w = await fetchNetWeight(pn); netIn.value = w.toFixed(3);
                         if(w > 8) tr.querySelector('.chk-over8').checked = true;
                         calcRow(tr, type);
                     } catch { netIn.placeholder = '에러(직접입력)'; }
@@ -319,22 +318,28 @@
             const appCell = tr.querySelector('.cell-applied');
             const finCell = tr.querySelector('.cell-final');
 
-            if(netVal <= 0 || qty <= 0) { appCell.innerText = '0.00'; finCell.innerText = '0.00'; return; }
-
+            if(netVal <= 0 || qty <= 0) { appCell.innerText = '0.0'; finCell.innerText = '0.0'; return; }
             const totalNet = netVal * qty;
-            
-            // Excel VLOOKUP(..., TRUE) 모사 로직
-            let matchedRow = wgtCalTable[0];
-            for(let r of wgtCalTable) { if(totalNet >= r.net) matchedRow = r; else break; }
 
-            const appWeight = matchedRow.net;
-            let finWeight = isSeal ? (matchedRow.sealy || matchedRow.gross) : matchedRow.gross;
-            
-            // 8kg 할증
-            if(over8) finWeight += 15;
-
-            appCell.innerText = appWeight.toFixed(2);
-            finCell.innerText = finWeight.toFixed(2);
+            if(type === 'DHL') {
+                // [DHL 복원 로직]
+                const dhlApp = (totalNet <= 1.9) ? roundup(totalNet, 1) : roundup(totalNet, 0);
+                let matched = wgtCalTable[0];
+                for(let r of wgtCalTable) { if(dhlApp >= r.net) matched = r; else break; }
+                let dhlFin = isSeal ? (matched.sealy || matched.gross) : matched.gross;
+                if(isSeal && dhlApp > 10) dhlFin = dhlApp * 1.4;
+                else if(!isSeal && dhlApp > 192) dhlFin = dhlApp * 1.2;
+                if(over8) dhlFin += 15;
+                appCell.innerText = dhlApp.toFixed(1); finCell.innerText = dhlFin.toFixed(1);
+            } else {
+                // [AIR VLOOKUP TRUE 로직]
+                let matched = wgtCalTable[0];
+                for(let r of wgtCalTable) { if(totalNet >= r.net) matched = r; else break; }
+                const appWeight = matched.net;
+                let finWeight = isSeal ? (matched.sealy || matched.gross) : matched.gross;
+                if(over8) finWeight += 15;
+                appCell.innerText = appWeight.toFixed(1); finCell.innerText = finWeight.toFixed(1);
+            }
         }
 
         function calculateTotal(type) {
@@ -357,52 +362,45 @@
             if(type === 'DHL') {
                 let match = dhlChargeTable[0];
                 for(let r of dhlChargeTable) { if(totalFinW <= r.weight) { match = r; break; } match = r; }
-                const base = match[dest];
                 const mult = (parseFloat(document.getElementById('dhl-multiplier').value) || 100) / 100;
-                fare = (base * mult) + (anyLi ? 7399 : 0);
+                fare = Math.round((match[dest] * mult + (anyLi ? 7399 : 0)) / 100) * 100;
             } else {
                 const lane = airLanes[dest]; if(!lane) return;
                 const cw = Math.max(totalFinW, totalFinW * 0.005 * 167);
                 const sRate = parseFloat(document.getElementById('sek-rate').value);
                 const eRate = parseFloat(document.getElementById('euro-rate').value);
 
-                // Origin
                 const oCost = Math.max(lane.origin.min, cw * lane.origin.r) + (lane.origin.hand || 0) + (cw * (lane.origin.screen || 0));
                 const oSek = oCost * (exInt[lane.origin.cur] || 1);
 
-                // Air
                 const aKey = Object.keys(lane.air.rates).find(k => cw <= parseFloat(k)) || 'over';
                 const aCost = Math.max(lane.air.min, cw * lane.air.rates[aKey]) + (cw * (lane.air.fuel || 0)) + (cw * (lane.air.sec || 0));
                 const aSek = aCost * (exInt[lane.air.cur] || 1);
 
-                // Dest
                 const dCost = Math.max(lane.dest.thcMin, cw * lane.dest.thcKg) + Math.max(lane.dest.onMin || 0, cw * (lane.dest.onKg || 0));
                 const dSek = dCost * (exInt[lane.dest.cur] || 1);
 
                 let totalSek = oSek + aSek;
                 if(lane.terms === 'Door-Door') totalSek += dSek;
-                
-                const toInvoiceSek = totalSek * 1.05;
+                const toInvSek = totalSek * 1.05;
                 const liAdd = anyLi ? 35 : 0;
 
-                if(lane.spec) fare = (toInvoiceSek * lane.f1 * sRate) + (lane.spec * eRate) + lane.c;
-                else fare = (toInvoiceSek * lane.f1 * sRate) + (cw * lane.f2 * eRate) + lane.c;
-                
+                if(lane.spec) fare = (toInvSek * lane.f1 * sRate) + (lane.spec * eRate) + lane.c;
+                else fare = (toInvSek * lane.f1 * sRate) + (cw * lane.f2 * eRate) + lane.c;
                 fare += (liAdd * eRate);
+                fare = Math.ceil(fare / 100) * 100;
             }
-            fareEl.innerText = (Math.ceil(fare / 100) * 100).toLocaleString() + " 원";
+            fareEl.innerText = Math.round(fare).toLocaleString() + " 원";
         }
 
         async function fetchNetWeight(pn) {
             const url = `https://weathered-lab-9c65.maxpaek.workers.dev?designation=${encodeURIComponent(pn)}`;
-            try {
-                const r = await fetch(url); const d = await r.json();
-                const tech = d.documentList.documents[0].technical_data;
-                for(let s of tech) {
-                    const row = s.rows.find(i => i.id === 'FR_PRODUCT_NET_WEIGHT');
-                    if(row) return row.unit.toLowerCase() === 'g' ? parseFloat(row.value)/1000 : parseFloat(row.value);
-                }
-            } catch(e) { throw e; }
+            const r = await fetch(url); const d = await r.json();
+            const tech = d.documentList.documents[0].technical_data;
+            for(let s of tech) {
+                const row = s.rows.find(i => i.id === 'FR_PRODUCT_NET_WEIGHT');
+                if(row) return row.unit.toLowerCase() === 'g' ? parseFloat(row.value)/1000 : parseFloat(row.value);
+            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
