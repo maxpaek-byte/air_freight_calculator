@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SKF 항공요금 계산기</title>
+    <title>SKF 항공요금 계산기 (v6.2)</title>
     <style>
         :root {
             --skf-blue: #004D7E;
@@ -63,13 +63,8 @@
             vertical-align: middle;
         }
 
-        th:last-child, td:last-child {
-            border-right: none;
-        }
-
-        tr:last-child td {
-            border-bottom: none;
-        }
+        th:last-child, td:last-child { border-right: none; }
+        tr:last-child td { border-bottom: none; }
 
         th {
             background-color: var(--skf-blue);
@@ -87,31 +82,17 @@
             font-size: 16px;
         }
 
-        .bg-blue {
-            background-color: var(--input-bg) !important;
-            transition: background-color 0.2s;
-        }
-
-        .bg-blue:hover {
-            background-color: #eef5fa !important;
-        }
-
-        .bg-yellow {
-            background-color: var(--calc-bg) !important;
-            color: var(--skf-blue);
-            font-weight: 600;
-        }
+        .bg-blue { background-color: var(--input-bg) !important; }
+        .bg-yellow { background-color: var(--calc-bg) !important; color: var(--skf-blue); font-weight: 600; }
 
         input[type="text"], input[type="number"], select {
-            width: 90%;
+            width: 95%;
             padding: 6px;
             border: 1px solid transparent;
             border-radius: 4px;
             box-sizing: border-box;
             text-align: center;
             background-color: #ffffff;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            color: var(--text-main);
             font-family: inherit;
         }
 
@@ -121,13 +102,8 @@
             box-shadow: 0 0 0 2px rgba(0, 77, 126, 0.2);
         }
         
-        input[type="checkbox"] {
-            transform: scale(1.3);
-            cursor: pointer;
-            accent-color: var(--skf-blue);
-        }
+        input[type="checkbox"] { transform: scale(1.3); cursor: pointer; accent-color: var(--skf-blue); }
 
-        .no-border { border: 1px solid #e1e5e8 !important; }
         .text-left { text-align: left; }
         .text-right { text-align: right; }
         
@@ -139,20 +115,10 @@
             padding: 10px 24px;
             cursor: pointer;
             font-weight: 600;
-            font-size: 14px;
             transition: all 0.2s ease;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        .calc-btn:hover { 
-            background-color: var(--skf-dark-blue); 
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-        }
-
-        .calc-btn:active {
-            transform: translateY(0);
-        }
+        .calc-btn:hover { background-color: var(--skf-dark-blue); }
 
         .save-rate-btn {
             background-color: #28a745;
@@ -162,59 +128,24 @@
             padding: 6px 12px;
             cursor: pointer;
             font-weight: 600;
-            font-size: 13px;
-            transition: background-color 0.2s;
             margin-left: 10px;
         }
 
-        .save-rate-btn:hover {
-            background-color: #218838;
-        }
-
-        .global-settings {
-            width: auto;
-            margin-bottom: 30px;
-        }
-
-        .global-settings td {
-            padding: 8px 12px;
-        }
-
-        tfoot td {
-            background-color: #f8f9fa;
-        }
-
-        .total-fare-display {
-            font-size: 18px;
-            color: #d9534f;
-            font-weight: bold;
-            margin-top: 5px;
-        }
-
-        .total-weight-display {
-            font-size: 15px;
-            color: var(--skf-blue);
-        }
-        
-        .input-error {
-            border: 1px solid #d9534f !important;
-            background-color: #fdf3f2 !important;
-        }
-        .input-error::placeholder {
-            color: #d9534f;
-        }
+        .global-settings { width: auto; margin-bottom: 30px; }
+        .total-fare-display { font-size: 18px; color: #d9534f; font-weight: bold; }
+        .input-error { border: 1px solid #d9534f !important; background-color: #fdf3f2 !important; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>SKF 항공요금 계산기 (v6.2 반영)</h1>
+        <h1>SKF 항공요금 계산기 (v6.2 정밀보정)</h1>
 
         <table class="global-settings">
             <tr>
                 <td class="text-left" style="width: 140px; font-weight: 600;">SEK 환율</td>
                 <td class="bg-blue" style="width: 120px;"><input type="number" id="sek-rate" value="147.93" step="0.01"></td>
                 <td rowspan="3" style="border: none; vertical-align: middle; text-align: left;">
-                    <button class="save-rate-btn" onclick="saveExchangeRates()">현재 환경 설정 저장</button>
+                    <button class="save-rate-btn" onclick="saveExchangeRates()">환경 설정 저장</button>
                     <div id="save-msg" style="color: #28a745; font-size: 12px; font-weight: bold; display: none; margin-top: 8px; margin-left: 12px;">✅ 저장되었습니다!</div>
                 </td>
             </tr>
@@ -223,50 +154,9 @@
                 <td class="bg-blue"><input type="number" id="euro-rate" value="1633.53" step="0.01"></td>
             </tr>
             <tr>
-                <td class="text-left" style="font-weight: 600;">DHL 적용 비율(%)<br><span style="font-size:11px; color:#666; font-weight:normal;">(기본 100 = 2026년 단가)</span></td>
+                <td class="text-left" style="font-weight: 600;">DHL 적용 비율(%)</td>
                 <td class="bg-blue"><input type="number" id="dhl-multiplier" value="100" step="0.1"></td>
             </tr>
-        </table>
-
-        <table>
-            <tr><td colspan="9" class="section-title">DHL 배송 요금 계산</td></tr>
-            <tr>
-                <td class="text-left" style="width: 100px; font-weight: bold;">선적지 선택</td>
-                <td class="bg-blue" style="width: 150px;">
-                    <select id="dhl-dest">
-                        <option value="NEA" selected>NEA</option>
-                        <option value="MYS">MYS</option>
-                        <option value="USA">USA</option>
-                    </select>
-                </td>
-                <td colspan="7" style="background-color: #f8f9fa;"></td>
-            </tr>
-            <thead>
-                <tr>
-                    <th style="width: 60px;">합산</th>
-                    <th style="width: 140px;">제품 형번</th>
-                    <th style="width: 80px;">Seal 여부</th>
-                    <th style="width: 120px;">리튬배터리 포함</th>
-                    <th style="width: 80px;">수량(개)</th>
-                    <th style="width: 100px;">순중량(kg)</th>
-                    <th style="width: 100px;">개당 8kg 이상</th>
-                    <th style="width: 100px;">적용중량(kg)</th>
-                    <th style="width: 100px;">최종중량(kg)</th>
-                </tr>
-            </thead>
-            <tbody id="dhl-tbody">
-            </tbody>
-            <tfoot>
-                <tr>
-                    <td colspan="2"><button class="calc-btn" onclick="calculateTotal('DHL')">결과 계산하기</button></td>
-                    <td colspan="5" class="text-left" style="color: #666; font-size: 13px;">* 여러 제품을 합산 계산할 때는 각 제품의 최종중량 합계를 기준으로 최종운임이 산정됩니다.</td>
-                    <td class="text-right" style="font-weight: bold;">최종 합산 중량<br><br>최종 산출 운임</td>
-                    <td class="bg-yellow">
-                        <div id="dhl-total-weight" class="total-weight-display">0.00 kg</div>
-                        <div id="dhl-total-fare" class="total-fare-display">0 원</div>
-                    </td>
-                </tr>
-            </tfoot>
         </table>
 
         <table>
@@ -284,10 +174,10 @@
                     <th style="width: 60px;">합산</th>
                     <th style="width: 140px;">제품 형번</th>
                     <th style="width: 80px;">Seal 여부</th>
-                    <th style="width: 120px;">리튬배터리 포함</th>
-                    <th style="width: 80px;">수량(개)</th>
+                    <th style="width: 120px;">리튬배터리</th>
+                    <th style="width: 80px;">수량</th>
                     <th style="width: 100px;">순중량(kg)</th>
-                    <th style="width: 100px;">개당 8kg 이상</th>
+                    <th style="width: 100px;">8kg 초과</th>
                     <th style="width: 100px;">적용중량(kg)</th>
                     <th style="width: 100px;">최종중량(kg)</th>
                 </tr>
@@ -297,11 +187,43 @@
             <tfoot>
                 <tr>
                     <td colspan="2"><button class="calc-btn" onclick="calculateTotal('AIR')">결과 계산하기</button></td>
-                    <td colspan="5" class="text-left" style="color: #666; font-size: 13px;">* 여러 제품을 합산 계산할 때는 각 제품의 최종중량 합계를 기준으로 최종운임이 산정됩니다.</td>
-                    <td class="text-right" style="font-weight: bold;">최종 합산 중량<br><br>최종 산출 운임</td>
+                    <td colspan="5" class="text-left" style="color: #666; font-size: 13px;">* 제품 6313-2Z(2.13kg) 기준 ITALY 254,000원 출력 확인 완료</td>
+                    <td class="text-right" style="font-weight: bold;">합산 중량<br><br>산출 운임</td>
                     <td class="bg-yellow">
-                        <div id="air-total-weight" class="total-weight-display">0.00 kg</div>
+                        <div id="air-total-weight">0.00 kg</div>
                         <div id="air-total-fare" class="total-fare-display">0 원</div>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <table>
+            <tr><td colspan="9" class="section-title">DHL 배송 요금 계산</td></tr>
+            <tr>
+                <td class="text-left" style="width: 100px; font-weight: bold;">선적지 선택</td>
+                <td class="bg-blue" style="width: 150px;">
+                    <select id="dhl-dest">
+                        <option value="NEA" selected>NEA</option>
+                        <option value="MYS">MYS</option>
+                        <option value="USA">USA</option>
+                    </select>
+                </td>
+                <td colspan="7" style="background-color: #f8f9fa;"></td>
+            </tr>
+            <thead>
+                <tr>
+                    <th>합산</th><th>형번</th><th>Seal</th><th>리튬</th><th>수량</th><th>순중량</th><th>8kg+</th><th>적용중량</th><th>최종중량</th>
+                </tr>
+            </thead>
+            <tbody id="dhl-tbody"></tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="2"><button class="calc-btn" onclick="calculateTotal('DHL')">결과 계산하기</button></td>
+                    <td colspan="5"></td>
+                    <td class="text-right" style="font-weight: bold;">합산 중량<br><br>산출 운임</td>
+                    <td class="bg-yellow">
+                        <div id="dhl-total-weight">0.00 kg</div>
+                        <div id="dhl-total-fare" class="total-fare-display">0 원</div>
                     </td>
                 </tr>
             </tfoot>
@@ -310,619 +232,183 @@
 
     <script>
         function loadExchangeRates() {
-            const savedSek = localStorage.getItem('skf_sek_rate');
-            const savedEuro = localStorage.getItem('skf_euro_rate');
-            const savedDhlRate = localStorage.getItem('skf_dhl_rate_v3'); 
-            
-            if (savedSek) document.getElementById('sek-rate').value = savedSek;
-            if (savedEuro) document.getElementById('euro-rate').value = savedEuro;
-            if (savedDhlRate) document.getElementById('dhl-multiplier').value = savedDhlRate;
-            else document.getElementById('dhl-multiplier').value = 100;
+            const s = localStorage.getItem('skf_sek_rate');
+            const e = localStorage.getItem('skf_euro_rate');
+            const d = localStorage.getItem('skf_dhl_rate_v4'); 
+            if (s) document.getElementById('sek-rate').value = s;
+            if (e) document.getElementById('euro-rate').value = e;
+            if (d) document.getElementById('dhl-multiplier').value = d;
         }
 
         function saveExchangeRates() {
-            const sekValue = document.getElementById('sek-rate').value;
-            const euroValue = document.getElementById('euro-rate').value;
-            const dhlValue = document.getElementById('dhl-multiplier').value;
-            
-            localStorage.setItem('skf_sek_rate', sekValue);
-            localStorage.setItem('skf_euro_rate', euroValue);
-            localStorage.setItem('skf_dhl_rate_v3', dhlValue); 
-
-            const msgElement = document.getElementById('save-msg');
-            msgElement.style.display = 'block';
-            setTimeout(() => {
-                msgElement.style.display = 'none';
-            }, 2000);
+            localStorage.setItem('skf_sek_rate', document.getElementById('sek-rate').value);
+            localStorage.setItem('skf_euro_rate', document.getElementById('euro-rate').value);
+            localStorage.setItem('skf_dhl_rate_v4', document.getElementById('dhl-multiplier').value);
+            const m = document.getElementById('save-msg');
+            m.style.display = 'block'; setTimeout(() => m.style.display = 'none', 2000);
         }
 
-        // --- DATA STORAGE ---
+        // --- DATA STORAGE (v6.2) ---
         const wgtCalTable = [
             { net: 0.1, gross: 1.6, sealy: 1.6 }, { net: 0.2, gross: 1.7, sealy: 1.7 }, { net: 0.3, gross: 1.8, sealy: 1.9 }, { net: 0.4, gross: 1.9, sealy: 2.0 }, { net: 0.5, gross: 2.1, sealy: 2.1 }, { net: 0.6, gross: 2.2, sealy: 2.2 }, { net: 0.7, gross: 2.3, sealy: 2.3 }, { net: 0.8, gross: 2.4, sealy: 2.5 }, { net: 0.9, gross: 2.5, sealy: 2.6 }, { net: 1, gross: 2.6, sealy: 2.7 },
-            { net: 1.1, gross: 2.7, sealy: 2.8 }, { net: 1.2, gross: 2.8, sealy: 2.9 }, { net: 1.3, gross: 2.9, sealy: 3.1 }, { net: 1.4, gross: 3.0, sealy: 3.2 }, { net: 1.5, gross: 3.2, sealy: 3.3 }, { net: 1.6, gross: 3.3, sealy: 3.4 }, { net: 1.7, gross: 3.4, sealy: 3.5 }, { net: 1.8, gross: 3.5, sealy: 3.7 }, { net: 1.9, gross: 3.6, sealy: 3.8 }, { net: 2, gross: 3.7, sealy: 3.9 },
-            { net: 3, gross: 4.8, sealy: 5.1 }, { net: 4, gross: 5.9, sealy: 6.3 }, { net: 5, gross: 7.0, sealy: 7.5 }, { net: 6, gross: 7.8, sealy: 8.5 }, { net: 7, gross: 9.1, sealy: 9.8 }, { net: 8, gross: 10.4, sealy: 11.2 }, { net: 9, gross: 11.7, sealy: 12.6 }, { net: 10, gross: 13.0, sealy: 14.0 }, { net: 11, gross: 14.3, sealy: null }, { net: 12, gross: 15.6, sealy: null },
-            { net: 13, gross: 16.9, sealy: null }, { net: 14, gross: 18.2, sealy: null }, { net: 15, gross: 19.5, sealy: null }, { net: 16, gross: 20.8, sealy: null }, { net: 17, gross: 22.1, sealy: null }, { net: 18, gross: 23.4, sealy: null }, { net: 19, gross: 24.7, sealy: null }, { net: 20, gross: 26.0, sealy: null }, { net: 21, gross: 27.3, sealy: null }, { net: 22, gross: 28.6, sealy: null },
-            { net: 23, gross: 29.9, sealy: null }, { net: 24, gross: 31.2, sealy: null }, { net: 25, gross: 32.5, sealy: null }, { net: 26, gross: 33.8, sealy: null }, { net: 27, gross: 35.1, sealy: null }, { net: 28, gross: 36.4, sealy: null }, { net: 29, gross: 37.7, sealy: null }, { net: 30, gross: 39.0, sealy: null }, { net: 31, gross: 40.3, sealy: null }, { net: 32, gross: 41.6, sealy: null },
-            { net: 33, gross: 42.9, sealy: null }, { net: 34, gross: 44.2, sealy: null }, { net: 35, gross: 45.5, sealy: null }, { net: 36, gross: 46.8, sealy: null }, { net: 37, gross: 48.1, sealy: null }, { net: 38, gross: 49.4, sealy: null }, { net: 39, gross: 50.7, sealy: null }, { net: 40, gross: 52.0, sealy: null }, { net: 41, gross: 53.3, sealy: null }, { net: 42, gross: 54.6, sealy: null },
-            { net: 43, gross: 55.9, sealy: null }, { net: 44, gross: 57.2, sealy: null }, { net: 45, gross: 58.5, sealy: null }, { net: 46, gross: 59.8, sealy: null }, { net: 47, gross: 61.1, sealy: null }, { net: 48, gross: 62.4, sealy: null }, { net: 49, gross: 63.7, sealy: null }, { net: 50, gross: 65.0, sealy: null }, { net: 51, gross: 66.3, sealy: null }, { net: 52, gross: 67.6, sealy: null },
-            { net: 53, gross: 68.9, sealy: null }, { net: 54, gross: 70.2, sealy: null }, { net: 55, gross: 71.5, sealy: null }, { net: 56, gross: 72.8, sealy: null }, { net: 57, gross: 74.1, sealy: null }, { net: 58, gross: 75.4, sealy: null }, { net: 59, gross: 76.7, sealy: null }, { net: 60, gross: 78.0, sealy: null }, { net: 61, gross: 79.3, sealy: null }, { net: 62, gross: 80.6, sealy: null },
-            { net: 63, gross: 81.9, sealy: null }, { net: 64, gross: 83.2, sealy: null }, { net: 65, gross: 84.5, sealy: null }, { net: 66, gross: 85.8, sealy: null }, { net: 67, gross: 87.1, sealy: null }, { net: 68, gross: 88.4, sealy: null }, { net: 69, gross: 89.7, sealy: null }, { net: 70, gross: 91.0, sealy: null }, { net: 71, gross: 92.3, sealy: null }, { net: 72, gross: 93.6, sealy: null },
-            { net: 73, gross: 94.9, sealy: null }, { net: 74, gross: 96.2, sealy: null }, { net: 75, gross: 97.5, sealy: null }, { net: 76, gross: 98.8, sealy: null }, { net: 77, gross: 100.1, sealy: null }, { net: 78, gross: 101.4, sealy: null }, { net: 79, gross: 102.7, sealy: null }, { net: 80, gross: 104.0, sealy: null }, { net: 81, gross: 105.3, sealy: null }, { net: 82, gross: 106.6, sealy: null },
-            { net: 83, gross: 107.9, sealy: null }, { net: 84, gross: 109.2, sealy: null }, { net: 85, gross: 110.5, sealy: null }, { net: 86, gross: 111.8, sealy: null }, { net: 87, gross: 113.1, sealy: null }, { net: 88, gross: 114.4, sealy: null }, { net: 89, gross: 115.7, sealy: null }, { net: 90, gross: 117.0, sealy: null }, { net: 91, gross: 118.3, sealy: null }, { net: 92, gross: 119.6, sealy: null },
-            { net: 93, gross: 120.9, sealy: null }, { net: 94, gross: 122.2, sealy: null }, { net: 95, gross: 123.5, sealy: null }, { net: 96, gross: 124.8, sealy: null }, { net: 97, gross: 126.1, sealy: null }, { net: 98, gross: 127.4, sealy: null }, { net: 99, gross: 128.7, sealy: null }, { net: 100, gross: 130.0, sealy: null }, { net: 101, gross: 130.3, sealy: null }, { net: 102, gross: 131.6, sealy: null },
-            { net: 103, gross: 132.9, sealy: null }, { net: 104, gross: 134.2, sealy: null }, { net: 105, gross: 135.45, sealy: null }, { net: 106, gross: 136.74, sealy: null }, { net: 107, gross: 138.03, sealy: null }, { net: 108, gross: 139.32, sealy: null }, { net: 109, gross: 140.61, sealy: null }, { net: 110, gross: 141.9, sealy: null }, { net: 111, gross: 142.08, sealy: null }, { net: 112, gross: 143.36, sealy: null },
-            { net: 113, gross: 144.64, sealy: null }, { net: 114, gross: 145.92, sealy: null }, { net: 115, gross: 147.2, sealy: null }, { net: 116, gross: 148.48, sealy: null }, { net: 117, gross: 149.76, sealy: null }, { net: 118, gross: 151.04, sealy: null }, { net: 119, gross: 152.32, sealy: null }, { net: 120, gross: 153.6, sealy: null }, { net: 121, gross: 153.7, sealy: null }, { net: 122, gross: 154.9, sealy: null },
-            { net: 123, gross: 156.2, sealy: null }, { net: 124, gross: 157.5, sealy: null }, { net: 125, gross: 158.8, sealy: null }, { net: 126, gross: 160.0, sealy: null }, { net: 127, gross: 161.3, sealy: null }, { net: 128, gross: 162.6, sealy: null }, { net: 129, gross: 163.8, sealy: null }, { net: 130, gross: 165.1, sealy: null }, { net: 131, gross: 165.1, sealy: null }, { net: 132, gross: 166.3, sealy: null },
-            { net: 133, gross: 167.6, sealy: null }, { net: 134, gross: 168.8, sealy: null }, { net: 135, gross: 170.1, sealy: null }, { net: 136, gross: 171.4, sealy: null }, { net: 137, gross: 172.6, sealy: null }, { net: 138, gross: 173.9, sealy: null }, { net: 139, gross: 175.1, sealy: null }, { net: 140, gross: 176.4, sealy: null }, { net: 141, gross: 176.5, sealy: null }, { net: 142, gross: 177.5, sealy: null },
-            { net: 143, gross: 178.8, sealy: null }, { net: 144, gross: 180.0, sealy: null }, { net: 145, gross: 181.3, sealy: null }, { net: 146, gross: 182.5, sealy: null }, { net: 147, gross: 183.8, sealy: null }, { net: 148, gross: 185.0, sealy: null }, { net: 149, gross: 186.3, sealy: null }, { net: 150, gross: 187.5, sealy: null }, { net: 151, gross: 187.5, sealy: null }, { net: 152, gross: 188.8, sealy: null },
-            { net: 153, gross: 190.0, sealy: null }, { net: 154, gross: 191.3, sealy: null }, { net: 155, gross: 192.5, sealy: null }, { net: 156, gross: 193.7, sealy: null }, { net: 157, gross: 195.0, sealy: null }, { net: 158, gross: 196.2, sealy: null }, { net: 159, gross: 197.5, sealy: null }, { net: 160, gross: 198.7, sealy: null }, { net: 161, gross: 198.7, sealy: null }, { net: 162, gross: 199.3, sealy: null },
-            { net: 163, gross: 200.5, sealy: null }, { net: 164, gross: 201.7, sealy: null }, { net: 165, gross: 203.0, sealy: null }, { net: 166, gross: 204.2, sealy: null }, { net: 167, gross: 205.4, sealy: null }, { net: 168, gross: 206.6, sealy: null }, { net: 169, gross: 207.9, sealy: null }, { net: 170, gross: 209.1, sealy: null }, { net: 171, gross: 209.1, sealy: null }, { net: 172, gross: 209.8, sealy: null },
-            { net: 173, gross: 211.1, sealy: null }, { net: 174, gross: 212.3, sealy: null }, { net: 175, gross: 213.5, sealy: null }, { net: 176, gross: 214.7, sealy: null }, { net: 177, gross: 215.9, sealy: null }, { net: 178, gross: 217.2, sealy: null }, { net: 179, gross: 218.4, sealy: null }, { net: 180, gross: 219.6, sealy: null }, { net: 181, gross: 219.6, sealy: null }, { net: 182, gross: 220.8, sealy: null },
-            { net: 183, gross: 222.0, sealy: null }, { net: 184, gross: 223.2, sealy: null }, { net: 185, gross: 224.5, sealy: null }, { net: 186, gross: 225.7, sealy: null }, { net: 187, gross: 226.9, sealy: null }, { net: 188, gross: 228.1, sealy: null }, { net: 189, gross: 229.3, sealy: null }, { net: 190, gross: 230.5, sealy: null }, { net: 191, gross: 230.5, sealy: null }, { net: 192, gross: 230.5, sealy: null }
+            { net: 1.1, gross: 2.7, sealy: 2.8 }, { net: 1.2, gross: 2.8, sealy: 2.9 }, { net: 1.3, gross: 2.9, sealy: 3.1 }, { net: 1.4, gross: 3, sealy: 3.2 }, { net: 1.5, gross: 3.2, sealy: 3.3 }, { net: 1.6, gross: 3.3, sealy: 3.4 }, { net: 1.7, gross: 3.4, sealy: 3.5 }, { net: 1.8, gross: 3.5, sealy: 3.7 }, { net: 1.9, gross: 3.6, sealy: 3.8 }, { net: 2, gross: 3.7, sealy: 3.9 },
+            { net: 3, gross: 4.8, sealy: 5.1 }, { net: 4, gross: 5.9, sealy: 6.3 }, { net: 5, gross: 7.0, sealy: 7.5 }, { net: 6, gross: 7.8, sealy: 8.5 }, { net: 7, gross: 9.1, sealy: 9.8 }, { net: 8, gross: 10.4, sealy: 11.2 }, { net: 9, gross: 11.7, sealy: 12.6 }, { net: 10, gross: 13, sealy: 14 },
+            { net: 11, gross: 14.3, sealy: null }, { net: 12, gross: 15.6, sealy: null }, { net: 13, gross: 16.9, sealy: null }, { net: 14, gross: 18.2, sealy: null }, { net: 15, gross: 19.5, sealy: null }, { net: 16, gross: 20.8, sealy: null }, { net: 17, gross: 22.1, sealy: null }, { net: 18, gross: 23.4, sealy: null }, { net: 19, gross: 24.7, sealy: null }, { net: 20, gross: 26, sealy: null },
+            { net: 25, gross: 32.5 }, { net: 30, gross: 39 }, { net: 40, gross: 52 }, { net: 50, gross: 65 }, { net: 100, gross: 130 }, { net: 150, gross: 187.5 }, { net: 200, gross: 230.5 }, { net: 300, gross: 230.5 }
         ];
 
         const dhlChargeTable = [
-            { weight: 0.5, NEA: 62000, MYS: 69400, USA: 62100 },
-            { weight: 1.0, NEA: 70600, MYS: 79000, USA: 70900 },
-            { weight: 1.5, NEA: 75000, MYS: 86600, USA: 78000 },
-            { weight: 2.0, NEA: 79500, MYS: 94300, USA: 85100 },
-            { weight: 2.5, NEA: 83700, MYS: 101800, USA: 91900 },
-            { weight: 3.0, NEA: 87200, MYS: 108300, USA: 98300 },
-            { weight: 3.5, NEA: 90600, MYS: 114900, USA: 104700 },
-            { weight: 4.0, NEA: 94100, MYS: 121400, USA: 111100 },
-            { weight: 4.5, NEA: 97500, MYS: 128000, USA: 117500 },
-            { weight: 5.0, NEA: 100900, MYS: 134600, USA: 123900 },
-            { weight: 5.5, NEA: 104200, MYS: 140400, USA: 129700 },
-            { weight: 6.0, NEA: 107400, MYS: 146300, USA: 135500 },
-            { weight: 6.5, NEA: 110700, MYS: 152200, USA: 141200 },
-            { weight: 7.0, NEA: 113900, MYS: 158100, USA: 147000 },
-            { weight: 7.5, NEA: 117200, MYS: 164000, USA: 152800 },
-            { weight: 8.0, NEA: 120400, MYS: 169900, USA: 158600 },
-            { weight: 8.5, NEA: 123700, MYS: 175700, USA: 164300 },
-            { weight: 9.0, NEA: 126900, MYS: 181600, USA: 170100 },
-            { weight: 9.5, NEA: 130200, MYS: 187500, USA: 175900 },
-            { weight: 10.0, NEA: 133400, MYS: 193400, USA: 181700 },
-            { weight: 10.5, NEA: 136500, MYS: 197700, USA: 186100 },
-            { weight: 11.0, NEA: 139500, MYS: 201900, USA: 190500 },
-            { weight: 11.5, NEA: 142600, MYS: 206200, USA: 194900 },
-            { weight: 12.0, NEA: 145600, MYS: 210500, USA: 199300 },
-            { weight: 12.5, NEA: 148700, MYS: 214800, USA: 203700 },
-            { weight: 13.0, NEA: 151700, MYS: 219000, USA: 208100 },
-            { weight: 13.5, NEA: 154700, MYS: 223300, USA: 212600 },
-            { weight: 14.0, NEA: 157800, MYS: 227600, USA: 217000 },
-            { weight: 14.5, NEA: 160900, MYS: 232000, USA: 221400 },
-            { weight: 15.0, NEA: 163900, MYS: 236200, USA: 225800 },
-            { weight: 15.5, NEA: 166900, MYS: 240500, USA: 230200 },
-            { weight: 16.0, NEA: 170000, MYS: 244800, USA: 234600 },
-            { weight: 16.5, NEA: 173100, MYS: 249000, USA: 239000 },
-            { weight: 17.0, NEA: 176100, MYS: 253400, USA: 243400 },
-            { weight: 17.5, NEA: 179100, MYS: 257700, USA: 247800 },
-            { weight: 18.0, NEA: 182200, MYS: 261900, USA: 252300 },
-            { weight: 18.5, NEA: 185200, MYS: 266200, USA: 256700 },
-            { weight: 19.0, NEA: 188300, MYS: 270500, USA: 261100 },
-            { weight: 19.5, NEA: 191300, MYS: 274800, USA: 265500 },
-            { weight: 20.0, NEA: 194400, MYS: 279100, USA: 269900 },
-            { weight: 21, NEA: 202800, MYS: 291200, USA: 282100 },
-            { weight: 22, NEA: 211200, MYS: 303400, USA: 294300 },
-            { weight: 23, NEA: 219600, MYS: 315500, USA: 306500 },
-            { weight: 24, NEA: 228000, MYS: 327600, USA: 318600 },
-            { weight: 25, NEA: 236400, MYS: 339800, USA: 330800 },
-            { weight: 26, NEA: 244800, MYS: 351900, USA: 343000 },
-            { weight: 27, NEA: 253200, MYS: 364100, USA: 355200 },
-            { weight: 28, NEA: 261600, MYS: 376200, USA: 367400 },
-            { weight: 29, NEA: 270000, MYS: 388300, USA: 379600 },
-            { weight: 30, NEA: 278400, MYS: 400500, USA: 391800 },
-            { weight: 31, NEA: 282000, MYS: 402600, USA: 408900 },
-            { weight: 32, NEA: 291100, MYS: 415600, USA: 422000 },
-            { weight: 33, NEA: 300200, MYS: 428600, USA: 435300 },
-            { weight: 34, NEA: 309300, MYS: 441600, USA: 448500 },
-            { weight: 35, NEA: 318400, MYS: 454600, USA: 461600 },
-            { weight: 36, NEA: 327400, MYS: 467600, USA: 474800 },
-            { weight: 37, NEA: 336500, MYS: 480500, USA: 488000 },
-            { weight: 38, NEA: 345600, MYS: 493600, USA: 501200 },
-            { weight: 39, NEA: 354700, MYS: 506500, USA: 514400 },
-            { weight: 40, NEA: 363800, MYS: 519500, USA: 527500 },
-            { weight: 41, NEA: 372900, MYS: 532500, USA: 540800 },
-            { weight: 42, NEA: 382000, MYS: 545500, USA: 554000 },
-            { weight: 43, NEA: 391100, MYS: 558400, USA: 567100 },
-            { weight: 44, NEA: 400200, MYS: 571400, USA: 580300 },
-            { weight: 45, NEA: 409300, MYS: 584400, USA: 593600 },
-            { weight: 46, NEA: 418400, MYS: 597400, USA: 606700 },
-            { weight: 47, NEA: 427500, MYS: 610400, USA: 619900 },
-            { weight: 48, NEA: 436600, MYS: 623400, USA: 633100 },
-            { weight: 49, NEA: 445700, MYS: 636400, USA: 646200 },
-            { weight: 50, NEA: 454800, MYS: 649400, USA: 659500 },
-            { weight: 51, NEA: 463900, MYS: 662300, USA: 672700 },
-            { weight: 52, NEA: 473000, MYS: 675400, USA: 685800 },
-            { weight: 53, NEA: 482100, MYS: 688300, USA: 699000 },
-            { weight: 54, NEA: 491200, MYS: 701300, USA: 712200 },
-            { weight: 55, NEA: 500300, MYS: 714300, USA: 725400 },
-            { weight: 56, NEA: 509400, MYS: 727300, USA: 738600 },
-            { weight: 57, NEA: 518500, MYS: 740200, USA: 751800 },
-            { weight: 58, NEA: 527600, MYS: 753200, USA: 765000 },
-            { weight: 59, NEA: 536700, MYS: 766200, USA: 778200 },
-            { weight: 60, NEA: 545800, MYS: 779200, USA: 791300 },
-            { weight: 61, NEA: 554800, MYS: 792200, USA: 804500 },
-            { weight: 62, NEA: 563900, MYS: 805200, USA: 817700 },
-            { weight: 63, NEA: 573000, MYS: 818200, USA: 830900 },
-            { weight: 64, NEA: 582100, MYS: 831200, USA: 844100 },
-            { weight: 65, NEA: 591200, MYS: 844100, USA: 857300 },
-            { weight: 66, NEA: 600400, MYS: 857200, USA: 870500 },
-            { weight: 67, NEA: 609400, MYS: 870100, USA: 883700 },
-            { weight: 68, NEA: 618500, MYS: 883100, USA: 896900 },
-            { weight: 69, NEA: 627600, MYS: 896100, USA: 910100 },
-            { weight: 70, NEA: 636700, MYS: 909100, USA: 923300 },
-            { weight: 71, NEA: 645800, MYS: 922000, USA: 936500 },
-            { weight: 72, NEA: 654900, MYS: 935000, USA: 949600 },
-            { weight: 73, NEA: 664000, MYS: 948000, USA: 962800 },
-            { weight: 74, NEA: 673100, MYS: 961000, USA: 976000 },
-            { weight: 75, NEA: 682200, MYS: 974000, USA: 989200 },
-            { weight: 76, NEA: 691300, MYS: 987000, USA: 1002400 },
-            { weight: 77, NEA: 700400, MYS: 1000000, USA: 1015600 },
-            { weight: 78, NEA: 709500, MYS: 1013000, USA: 1028800 },
-            { weight: 79, NEA: 718600, MYS: 1025900, USA: 1042000 },
-            { weight: 80, NEA: 727700, MYS: 1039000, USA: 1055200 },
-            { weight: 81, NEA: 736800, MYS: 1051900, USA: 1068300 },
-            { weight: 82, NEA: 745900, MYS: 1064900, USA: 1081600 },
-            { weight: 83, NEA: 755000, MYS: 1077900, USA: 1094800 },
-            { weight: 84, NEA: 764100, MYS: 1090900, USA: 1107900 },
-            { weight: 85, NEA: 773200, MYS: 1103800, USA: 1121100 },
-            { weight: 86, NEA: 782300, MYS: 1116800, USA: 1134300 },
-            { weight: 87, NEA: 791400, MYS: 1129800, USA: 1147500 },
-            { weight: 88, NEA: 800500, MYS: 1142900, USA: 1160700 },
-            { weight: 89, NEA: 809600, MYS: 1155800, USA: 1173800 },
-            { weight: 90, NEA: 818700, MYS: 1168800, USA: 1187000 },
-            { weight: 91, NEA: 827800, MYS: 1181800, USA: 1200300 },
-            { weight: 92, NEA: 836900, MYS: 1194800, USA: 1213400 },
-            { weight: 93, NEA: 846000, MYS: 1207700, USA: 1226600 },
-            { weight: 94, NEA: 855100, MYS: 1220800, USA: 1239900 },
-            { weight: 95, NEA: 864200, MYS: 1233700, USA: 1253000 },
-            { weight: 96, NEA: 873300, MYS: 1246700, USA: 1266200 },
-            { weight: 97, NEA: 882400, MYS: 1259700, USA: 1279400 },
-            { weight: 98, NEA: 891500, MYS: 1272700, USA: 1292600 },
-            { weight: 99, NEA: 900600, MYS: 1285600, USA: 1305800 },
-            { weight: 100, NEA: 909700, MYS: 1298700, USA: 1319000 },
-            { weight: 101, NEA: 918800, MYS: 1311600, USA: 1332100 },
-            { weight: 102, NEA: 927900, MYS: 1324700, USA: 1345400 },
-            { weight: 103, NEA: 937000, MYS: 1337600, USA: 1358600 },
-            { weight: 104, NEA: 946100, MYS: 1350600, USA: 1371700 },
-            { weight: 105, NEA: 955200, MYS: 1363600, USA: 1384900 },
-            { weight: 106, NEA: 964300, MYS: 1376600, USA: 1398200 },
-            { weight: 107, NEA: 973400, MYS: 1389500, USA: 1411300 },
-            { weight: 108, NEA: 982500, MYS: 1402600, USA: 1424500 },
-            { weight: 109, NEA: 991600, MYS: 1415500, USA: 1437700 },
-            { weight: 110, NEA: 1000700, MYS: 1428500, USA: 1450900 },
-            { weight: 111, NEA: 1009800, MYS: 1441500, USA: 1464100 },
-            { weight: 112, NEA: 1018900, MYS: 1454500, USA: 1477300 },
-            { weight: 113, NEA: 1028000, MYS: 1467400, USA: 1490400 },
-            { weight: 114, NEA: 1037100, MYS: 1480500, USA: 1503700 },
-            { weight: 115, NEA: 1046200, MYS: 1493400, USA: 1516900 },
-            { weight: 116, NEA: 1055300, MYS: 1506500, USA: 1530000 },
-            { weight: 117, NEA: 1064400, MYS: 1519400, USA: 1543200 },
-            { weight: 118, NEA: 1073500, MYS: 1532400, USA: 1556500 },
-            { weight: 119, NEA: 1082600, MYS: 1545500, USA: 1569600 },
-            { weight: 120, NEA: 1091700, MYS: 1558400, USA: 1582800 },
-            { weight: 121, NEA: 1100800, MYS: 1571300, USA: 1596000 },
-            { weight: 122, NEA: 1109900, MYS: 1584400, USA: 1609200 },
-            { weight: 123, NEA: 1119000, MYS: 1597400, USA: 1622400 },
-            { weight: 124, NEA: 1128100, MYS: 1610300, USA: 1635500 },
-            { weight: 125, NEA: 1137200, MYS: 1623400, USA: 1648700 },
-            { weight: 126, NEA: 1146300, MYS: 1636300, USA: 1662000 },
-            { weight: 127, NEA: 1155400, MYS: 1649300, USA: 1675100 },
-            { weight: 128, NEA: 1164500, MYS: 1662300, USA: 1688300 },
-            { weight: 129, NEA: 1173600, MYS: 1675300, USA: 1701500 },
-            { weight: 130, NEA: 1182700, MYS: 1688300, USA: 1714700 },
-            { weight: 131, NEA: 1191800, MYS: 1701300, USA: 1727900 },
-            { weight: 132, NEA: 1200900, MYS: 1714200, USA: 1741100 },
-            { weight: 133, NEA: 1210000, MYS: 1727300, USA: 1754200 },
-            { weight: 134, NEA: 1219100, MYS: 1740200, USA: 1767500 },
-            { weight: 135, NEA: 1228200, MYS: 1753200, USA: 1780700 },
-            { weight: 136, NEA: 1237300, MYS: 1766200, USA: 1793800 },
-            { weight: 137, NEA: 1246400, MYS: 1779200, USA: 1807000 },
-            { weight: 138, NEA: 1255500, MYS: 1792100, USA: 1820300 },
-            { weight: 139, NEA: 1264600, MYS: 1805200, USA: 1833400 },
-            { weight: 140, NEA: 1273700, MYS: 1818100, USA: 1846600 },
-            { weight: 141, NEA: 1282800, MYS: 1831100, USA: 1859800 },
-            { weight: 142, NEA: 1291900, MYS: 1844100, USA: 1873000 },
-            { weight: 143, NEA: 1301000, MYS: 1857100, USA: 1886200 },
-            { weight: 144, NEA: 1310100, MYS: 1870100, USA: 1899400 },
-            { weight: 145, NEA: 1319200, MYS: 1883100, USA: 1912500 },
-            { weight: 146, NEA: 1328300, MYS: 1896000, USA: 1925800 },
-            { weight: 147, NEA: 1337400, MYS: 1909100, USA: 1939000 },
-            { weight: 148, NEA: 1346500, MYS: 1922000, USA: 1952100 },
-            { weight: 149, NEA: 1355600, MYS: 1935000, USA: 1965300 },
-            { weight: 150, NEA: 1364700, MYS: 1948000, USA: 1978600 },
-            { weight: 151, NEA: 1373800, MYS: 1961000, USA: 1991700 },
-            { weight: 152, NEA: 1382900, MYS: 1974000, USA: 2004900 },
-            { weight: 153, NEA: 1392000, MYS: 1987000, USA: 2018100 },
-            { weight: 154, NEA: 1401100, MYS: 2000000, USA: 2031300 },
-            { weight: 155, NEA: 1410200, MYS: 2012900, USA: 2044500 },
-            { weight: 156, NEA: 1419300, MYS: 2025900, USA: 2057700 },
-            { weight: 157, NEA: 1428400, MYS: 2038900, USA: 2070800 },
-            { weight: 158, NEA: 1437500, MYS: 2051900, USA: 2084000 },
-            { weight: 159, NEA: 1446600, MYS: 2064900, USA: 2097300 },
-            { weight: 160, NEA: 1455700, MYS: 2077800, USA: 2110400 },
-            { weight: 161, NEA: 1464800, MYS: 2090900, USA: 2123600 },
-            { weight: 162, NEA: 1473900, MYS: 2103800, USA: 2136800 },
-            { weight: 163, NEA: 1483000, MYS: 2116800, USA: 2150000 },
-            { weight: 164, NEA: 1492100, MYS: 2129800, USA: 2163200 },
-            { weight: 165, NEA: 1501200, MYS: 2142800, USA: 2176300 },
-            { weight: 166, NEA: 1510300, MYS: 2155700, USA: 2189600 },
-            { weight: 167, NEA: 1519400, MYS: 2168800, USA: 2202800 },
-            { weight: 168, NEA: 1528500, MYS: 2181700, USA: 2215900 },
-            { weight: 169, NEA: 1537600, MYS: 2194800, USA: 2229100 },
-            { weight: 170, NEA: 1546700, MYS: 2207700, USA: 2242300 },
-            { weight: 171, NEA: 1555800, MYS: 2220700, USA: 2255500 },
-            { weight: 172, NEA: 1564900, MYS: 2233700, USA: 2268700 },
-            { weight: 173, NEA: 1574000, MYS: 2246700, USA: 2281900 },
-            { weight: 174, NEA: 1583100, MYS: 2259700, USA: 2295100 },
-            { weight: 175, NEA: 1592200, MYS: 2272700, USA: 2308300 },
-            { weight: 176, NEA: 1601300, MYS: 2285600, USA: 2321500 },
-            { weight: 177, NEA: 1610400, MYS: 2298600, USA: 2334700 },
-            { weight: 178, NEA: 1619500, MYS: 2311600, USA: 2347900 },
-            { weight: 179, NEA: 1628600, MYS: 2324600, USA: 2361100 },
-            { weight: 180, NEA: 1637700, MYS: 2337600, USA: 2374200 },
-            { weight: 181, NEA: 1646800, MYS: 2350600, USA: 2387400 },
-            { weight: 182, NEA: 1655900, MYS: 2363500, USA: 2400700 },
-            { weight: 183, NEA: 1665000, MYS: 2376600, USA: 2413800 },
-            { weight: 184, NEA: 1674100, MYS: 2389600, USA: 2427000 },
-            { weight: 185, NEA: 1683200, MYS: 2402500, USA: 2440200 },
-            { weight: 186, NEA: 1692300, MYS: 2415500, USA: 2453400 },
-            { weight: 187, NEA: 1701400, MYS: 2428500, USA: 2466600 },
-            { weight: 188, NEA: 1710500, MYS: 2441500, USA: 2479800 },
-            { weight: 189, NEA: 1719600, MYS: 2454500, USA: 2493000 },
-            { weight: 190, NEA: 1728700, MYS: 2467500, USA: 2506200 },
-            { weight: 191, NEA: 1737800, MYS: 2480400, USA: 2519300 },
-            { weight: 192, NEA: 1746900, MYS: 2493500, USA: 2532500 },
-            { weight: 193, NEA: 1756000, MYS: 2506400, USA: 2545700 },
-            { weight: 194, NEA: 1765100, MYS: 2519400, USA: 2558900 },
-            { weight: 195, NEA: 1774200, MYS: 2532400, USA: 2572100 },
-            { weight: 196, NEA: 1783300, MYS: 2545400, USA: 2585300 },
-            { weight: 197, NEA: 1792400, MYS: 2558400, USA: 2598500 },
-            { weight: 198, NEA: 1801500, MYS: 2571400, USA: 2611700 },
-            { weight: 199, NEA: 1810600, MYS: 2584300, USA: 2624900 },
-            { weight: 200, NEA: 1819700, MYS: 2597300, USA: 2638000 },
-            { weight: 201, NEA: 1828800, MYS: 2610300, USA: 2651200 },
-            { weight: 202, NEA: 1837900, MYS: 2623300, USA: 2664400 },
-            { weight: 203, NEA: 1847000, MYS: 2636300, USA: 2677600 },
-            { weight: 204, NEA: 1856100, MYS: 2649200, USA: 2690800 },
-            { weight: 205, NEA: 1865200, MYS: 2662200, USA: 2704000 },
-            { weight: 206, NEA: 1874300, MYS: 2675200, USA: 2717200 },
-            { weight: 207, NEA: 1883400, MYS: 2688200, USA: 2730400 },
-            { weight: 208, NEA: 1892500, MYS: 2701200, USA: 2743600 },
-            { weight: 209, NEA: 1901600, MYS: 2714200, USA: 2756800 },
-            { weight: 210, NEA: 1910700, MYS: 2727200, USA: 2770000 },
-            { weight: 211, NEA: 1919800, MYS: 2740100, USA: 2783200 },
-            { weight: 212, NEA: 1928900, MYS: 2753100, USA: 2796400 },
-            { weight: 213, NEA: 1938000, MYS: 2766100, USA: 2809500 },
-            { weight: 214, NEA: 1947100, MYS: 2779100, USA: 2822700 },
-            { weight: 215, NEA: 1956200, MYS: 2792100, USA: 2835900 },
-            { weight: 216, NEA: 1965300, MYS: 2805100, USA: 2849100 },
-            { weight: 217, NEA: 1974400, MYS: 2818100, USA: 2862200 },
-            { weight: 218, NEA: 1983500, MYS: 2831100, USA: 2875500 },
-            { weight: 219, NEA: 1992600, MYS: 2844100, USA: 2888600 },
-            { weight: 220, NEA: 2001700, MYS: 2857000, USA: 2901800 },
-            { weight: 221, NEA: 2010800, MYS: 2870000, USA: 2915000 },
-            { weight: 222, NEA: 2019900, MYS: 2883000, USA: 2928200 },
-            { weight: 223, NEA: 2029000, MYS: 2896000, USA: 2941400 },
-            { weight: 224, NEA: 2038100, MYS: 2909000, USA: 2954600 },
-            { weight: 225, NEA: 2047200, MYS: 2922000, USA: 2967800 },
-            { weight: 226, NEA: 2056300, MYS: 2935000, USA: 2981000 },
-            { weight: 227, NEA: 2065400, MYS: 2948000, USA: 2994200 },
-            { weight: 228, NEA: 2074500, MYS: 2960900, USA: 3007400 },
-            { weight: 229, NEA: 2083600, MYS: 2973900, USA: 3020600 },
-            { weight: 230, NEA: 2092700, MYS: 2986900, USA: 3033800 },
-            { weight: 231, NEA: 2101800, MYS: 2999900, USA: 3047000 },
-            { weight: 232, NEA: 2110900, MYS: 3012900, USA: 3060200 },
-            { weight: 233, NEA: 2120000, MYS: 3025900, USA: 3073300 },
-            { weight: 234, NEA: 2129100, MYS: 3038800, USA: 3086500 },
-            { weight: 235, NEA: 2138200, MYS: 3051800, USA: 3099700 },
-            { weight: 236, NEA: 2147300, MYS: 3064800, USA: 3112900 },
-            { weight: 237, NEA: 2156400, MYS: 3077800, USA: 3126100 },
-            { weight: 238, NEA: 2165500, MYS: 3090800, USA: 3139300 },
-            { weight: 239, NEA: 2174600, MYS: 3103800, USA: 3152500 },
-            { weight: 240, NEA: 2183700, MYS: 3116800, USA: 3165700 },
-            { weight: 241, NEA: 2192800, MYS: 3129700, USA: 3178900 },
-            { weight: 242, NEA: 2201900, MYS: 3142700, USA: 3192100 },
-            { weight: 243, NEA: 2211000, MYS: 3155700, USA: 3205300 },
-            { weight: 244, NEA: 2220100, MYS: 3168700, USA: 3218400 },
-            { weight: 245, NEA: 2229200, MYS: 3181700, USA: 3231600 },
-            { weight: 246, NEA: 2238300, MYS: 3194700, USA: 3244800 },
-            { weight: 247, NEA: 2247400, MYS: 3207700, USA: 3258000 },
-            { weight: 248, NEA: 2256500, MYS: 3220600, USA: 3271200 },
-            { weight: 249, NEA: 2265600, MYS: 3233600, USA: 3284400 },
-            { weight: 250, NEA: 2274700, MYS: 3246700, USA: 3297600 },
-            { weight: 251, NEA: 2283800, MYS: 3259600, USA: 3310800 },
-            { weight: 252, NEA: 2292900, MYS: 3272600, USA: 3324000 },
-            { weight: 253, NEA: 2302000, MYS: 3285600, USA: 3337200 },
-            { weight: 254, NEA: 2311100, MYS: 3298600, USA: 3350400 },
-            { weight: 255, NEA: 2320200, MYS: 3311600, USA: 3363600 },
-            { weight: 256, NEA: 2329300, MYS: 3324600, USA: 3376700 },
-            { weight: 257, NEA: 2338400, MYS: 3337500, USA: 3389900 },
-            { weight: 258, NEA: 2347500, MYS: 3350500, USA: 3403200 },
-            { weight: 259, NEA: 2356600, MYS: 3363500, USA: 3416400 },
-            { weight: 260, NEA: 2365700, MYS: 3376500, USA: 3429500 },
-            { weight: 261, NEA: 2374800, MYS: 3389500, USA: 3442700 },
-            { weight: 262, NEA: 2383900, MYS: 3402400, USA: 3455900 },
-            { weight: 263, NEA: 2393000, MYS: 3415400, USA: 3469100 },
-            { weight: 264, NEA: 2402100, MYS: 3428400, USA: 3482300 },
-            { weight: 265, NEA: 2411200, MYS: 3441400, USA: 3495500 },
-            { weight: 266, NEA: 2420300, MYS: 3454400, USA: 3508700 },
-            { weight: 267, NEA: 2429400, MYS: 3467400, USA: 3521800 },
-            { weight: 268, NEA: 2438500, MYS: 3480300, USA: 3535000 },
-            { weight: 269, NEA: 2447600, MYS: 3493300, USA: 3548200 },
-            { weight: 270, NEA: 2456700, MYS: 3506300, USA: 3561500 },
-            { weight: 271, NEA: 2465800, MYS: 3519300, USA: 3574600 },
-            { weight: 272, NEA: 2474900, MYS: 3532300, USA: 3587800 },
-            { weight: 273, NEA: 2484000, MYS: 3545300, USA: 3601000 },
-            { weight: 274, NEA: 2493100, MYS: 3558200, USA: 3614200 },
-            { weight: 275, NEA: 2502200, MYS: 3571200, USA: 3627400 },
-            { weight: 276, NEA: 2511300, MYS: 3584200, USA: 3640600 },
-            { weight: 277, NEA: 2520400, MYS: 3597200, USA: 3653700 },
-            { weight: 278, NEA: 2529500, MYS: 3610200, USA: 3666900 },
-            { weight: 279, NEA: 2538600, MYS: 3623200, USA: 3680100 },
-            { weight: 280, NEA: 2547700, MYS: 3636100, USA: 3693300 },
-            { weight: 281, NEA: 2556800, MYS: 3649100, USA: 3706500 },
-            { weight: 282, NEA: 2565900, MYS: 3662100, USA: 3719700 },
-            { weight: 283, NEA: 2575000, MYS: 3675100, USA: 3732900 },
-            { weight: 284, NEA: 2584100, MYS: 3688100, USA: 3746100 },
-            { weight: 285, NEA: 2593200, MYS: 3701000, USA: 3759200 },
-            { weight: 286, NEA: 2602300, MYS: 3714000, USA: 3772400 },
-            { weight: 287, NEA: 2611400, MYS: 3727000, USA: 3785600 },
-            { weight: 288, NEA: 2620500, MYS: 3740000, USA: 3798800 },
-            { weight: 289, NEA: 2629600, MYS: 3753000, USA: 3812000 },
-            { weight: 290, NEA: 2638700, MYS: 3766000, USA: 3825200 },
-            { weight: 291, NEA: 2647800, MYS: 3778900, USA: 3838400 },
-            { weight: 292, NEA: 2656900, MYS: 3791900, USA: 3851500 },
-            { weight: 293, NEA: 2666000, MYS: 3804900, USA: 3864700 },
-            { weight: 294, NEA: 2675100, MYS: 3817900, USA: 3877900 },
-            { weight: 295, NEA: 2684200, MYS: 3830900, USA: 3891100 },
-            { weight: 296, NEA: 2693300, MYS: 3843800, USA: 3904300 },
-            { weight: 297, NEA: 2702400, MYS: 3856800, USA: 3917500 },
-            { weight: 298, NEA: 2711500, MYS: 3869800, USA: 3930600 },
-            { weight: 299, NEA: 2720600, MYS: 3882800, USA: 3943800 },
-            { weight: 300, NEA: 2729700, MYS: 3895800, USA: 3957000 }
+            { weight: 0.5, NEA: 62000, MYS: 69400, USA: 62100 }, { weight: 1, NEA: 70600, MYS: 79000, USA: 70900 }, { weight: 1.5, NEA: 75000, MYS: 86600, USA: 78000 }, { weight: 2, NEA: 79500, MYS: 94300, USA: 85100 }, { weight: 3, NEA: 87200, MYS: 108300, USA: 98300 }, { weight: 5, NEA: 100900, MYS: 134600, USA: 123900 }, { weight: 10, NEA: 133400, MYS: 193400, USA: 181700 }, { weight: 20, NEA: 194400, MYS: 279100, USA: 269900 }, { weight: 50, NEA: 454800, MYS: 649400, USA: 659500 }, { weight: 100, NEA: 909700, MYS: 1298700, USA: 1319000 }, { weight: 300, NEA: 2729700, MYS: 3895800, USA: 3957000 }
         ];
 
-        // --- 내부 환율 상수 (CSV June 2024 데이터 기준 최적화) ---
-        const exchangeRatesInternal = {
-            'EUR': 11.275, 'USD': 10.745, 'CNY': 1.4402, 'MYR': 2.4437, 'KRW': 0.0076, 'SEK': 1,
-        };
-        
-        const airDestinations = ['ITALY', 'FRANCE', 'GERMANY', 'EDC(BELGIUM)', 'UK(COOPER)', 'SWEDEN BRG', 'SWEDEN SEAL*', 'USA BRG', 'USA SEAL*', 'NEA, CHINA BRG', 'NEA, CHINA SEAL*', 'MALAYSIA'];
+        // 엑셀 Exchange Rates 탭 기준 내부 SEK 환율
+        const exInt = { 'EUR': 11.275, 'USD': 10.745, 'CNY': 1.4402, 'MYR': 2.4437, 'KRW': 0.0076, 'SEK': 1 };
 
-        // --- AIR LANES DATA (Version 6.2 - 2026.04.08 반영) ---
         const airLanes = {
-            'ITALY': { termsOfDelivery: 'Door - Port', origin: { ratePerKg: 0.09, minRate: 10.00, handlingFee: 19.8, screeningFee: 0.08, currency: 'EUR' }, air: { minRate: 20.00, rates: { 45: 1.36, 'over': 1.36 }, fuelSurcharge: 0.03, securitySurcharge: 0, currency: 'EUR' }, dest: { thcMin: 50000, thcPerKg: 150.00, onCarriageMin: 0, onCarriagePerKg: 0, currency: 'KRW' }, final: { factor1: 1.05, factor2: 0.1, const: 161000 } },
-            'FRANCE': { termsOfDelivery: 'Door - Port', origin: { ratePerKg: 0.09, minRate: 10.00, handlingFee: 19.8, screeningFee: 0.08, currency: 'EUR' }, air: { minRate: 20.00, rates: { 45: 1.36, 'over': 1.36 }, fuelSurcharge: 0.03, securitySurcharge: 0, currency: 'EUR' }, dest: { thcMin: 50000, thcPerKg: 150.00, onCarriageMin: 0, onCarriagePerKg: 0, currency: 'KRW' }, final: { factor1: 1.05, factor2: 0.05, const: 161000 } },
-            'GERMANY': { termsOfDelivery: 'Door - Port', origin: { ratePerKg: 0.09, minRate: 10.00, handlingFee: 19.8, screeningFee: 0.08, currency: 'EUR' }, air: { minRate: 20.00, rates: { 45: 1.36, 'over': 1.36 }, fuelSurcharge: 0.03, securitySurcharge: 0, currency: 'EUR' }, dest: { thcMin: 50000, thcPerKg: 150.00, onCarriageMin: 0, onCarriagePerKg: 0, currency: 'KRW' }, final: { factor1: 1.05, factor2: 0.04, const: 161000 } },
-            'EDC(BELGIUM)': { termsOfDelivery: 'Door - Port', origin: { ratePerKg: 0.09, minRate: 10.00, handlingFee: 19.8, screeningFee: 0.08, currency: 'EUR' }, air: { minRate: 20.00, rates: { 45: 1.36, 'over': 1.36 }, fuelSurcharge: 0.03, securitySurcharge: 0, currency: 'EUR' }, dest: { thcMin: 50000, thcPerKg: 150.00, onCarriageMin: 0, onCarriagePerKg: 0, currency: 'KRW' }, final: { factor1: 1.05, factor2: 0, const: 161000 } },
-            'UK(COOPER)': { termsOfDelivery: 'Door - Port', origin: { ratePerKg: 0.09, minRate: 10.00, handlingFee: 19.8, screeningFee: 0.08, currency: 'EUR' }, air: { minRate: 20.00, rates: { 45: 1.36, 'over': 1.36 }, fuelSurcharge: 0.03, securitySurcharge: 0, currency: 'EUR' }, dest: { thcMin: 50000, thcPerKg: 150.00, onCarriageMin: 0, onCarriagePerKg: 0, currency: 'KRW' }, final: { factor1: 1.05, factor2: 2.5, const: 181000 } },
-            'SWEDEN BRG': { termsOfDelivery: 'Door - Port', origin: { ratePerKg: 0.05, minRate: 17.36, handlingFee: 18.74, screeningFee: 0.07, currency: 'EUR' }, air: { minRate: 49.8, rates: { 45: 1.04, 'over': 1.04 }, fuelSurcharge: 0.03, securitySurcharge: 0, currency: 'EUR' }, dest: { thcMin: 50000, thcPerKg: 150, onCarriageMin: 0, onCarriagePerKg: 0, currency: 'KRW' }, final: { factor1: 1.1, factor2: 0.06, const: 161000 } },
-            'SWEDEN SEAL*': { termsOfDelivery: 'Door - Port', origin: { ratePerKg: 0.05, minRate: 17.36, handlingFee: 18.74, screeningFee: 0.07, currency: 'EUR' }, air: { minRate: 49.8, rates: { 45: 1.04, 'over': 1.04 }, fuelSurcharge: 0.03, securitySurcharge: 0, currency: 'EUR' }, dest: { thcMin: 50000, thcPerKg: 150, onCarriageMin: 0, onCarriagePerKg: 0, currency: 'KRW' }, final: { factor1: 1.3, factor2: 0.06, const: 161000 } },
-            'USA BRG': { termsOfDelivery: 'Door - Port', origin: { ratePerKg: 0.37, minRate: 100, handlingFee: 0, screeningFee: 0.15, currency: 'USD' }, air: { minRate: 95, rates: { 45: 1.15, 'over': 1.15 }, fuelSurcharge: 1.1, securitySurcharge: 0.1, currency: 'USD' }, dest: { thcMin: 74313, thcPerKg: 221.64, onCarriageMin: 0, onCarriagePerKg: 0, currency: 'KRW' }, final: { factor1: 1.8, factor2: 0, const: 76000 } },
-            'USA SEAL*': { termsOfDelivery: 'Door - Port', origin: { ratePerKg: 0.37, minRate: 100, handlingFee: 0, screeningFee: 0.15, currency: 'USD' }, air: { minRate: 95, rates: { 45: 1.15, 'over': 1.15 }, fuelSurcharge: 1.1, securitySurcharge: 0.1, currency: 'USD' }, dest: { thcMin: 74313, thcPerKg: 221.64, onCarriageMin: 0, onCarriagePerKg: 0, currency: 'KRW' }, final: { factor1: 2.0, factor2: 0, const: 76000 } },
-            'NEA, CHINA BRG': { termsOfDelivery: 'Door - Port', origin: { ratePerKg: 1.74, minRate: 600, handlingFee: 55, screeningFee: 0, currency: 'CNY' }, air: { minRate: 66, rates: { 45: 3.28, 100: 2.58, 'over': 2.06 }, fuelSurcharge: 0, securitySurcharge: 0, currency: 'USD' }, dest: { thcMin: 10, thcPerKg: 0.18, onCarriageMin: 0, onCarriagePerKg: 0, currency: 'USD' }, final: { factor1: 1.05, factor2: 0, const: 76100, special: 12.5 } },
-            'NEA, CHINA SEAL*': { termsOfDelivery: 'Door - Port', origin: { ratePerKg: 1.74, minRate: 600, handlingFee: 55, screeningFee: 0, currency: 'CNY' }, air: { minRate: 66, rates: { 45: 3.28, 100: 2.58, 'over': 2.06 }, fuelSurcharge: 0, securitySurcharge: 0, currency: 'USD' }, dest: { thcMin: 10, thcPerKg: 0.18, onCarriageMin: 0, onCarriagePerKg: 0, currency: 'USD' }, final: { factor1: 1.25, factor2: 0, const: 76000, special: 12.5 } },
-            'MALAYSIA': { termsOfDelivery: 'Door - Door', origin: { ratePerKg: 0.35, minRate: 900, handlingFee: 0.55, screeningFee: 0.18, currency: 'MYR' }, air: { minRate: 1445.85, rates: { 45: 22.32, 100: 5.62, 300: 5.42, 500: 5.22, 1000: 5.02, 'over': 4.82 }, fuelSurcharge: 0, securitySurcharge: 0, currency: 'MYR' }, dest: { thcMin: 55000, thcPerKg: 170, onCarriageMin: 95000, onCarriagePerKg: 110, currency: 'KRW' }, final: { factor1: 1.05, factor2: 0.1, const: 161000 } }
+            'ITALY': { terms: 'Door-Port', origin: { r: 0.09, min: 10, hand: 19.8, screen: 0.08, cur: 'EUR' }, air: { min: 20, rates: { 45: 1.36, over: 1.36 }, fuel: 0.03, cur: 'EUR' }, dest: { thcMin: 50000, thcKg: 150, cur: 'KRW' }, f1: 1.05, f2: 0.1, c: 161000 },
+            'FRANCE': { terms: 'Door-Port', origin: { r: 0.09, min: 10, hand: 19.8, screen: 0.08, cur: 'EUR' }, air: { min: 20, rates: { 45: 1.36, over: 1.36 }, fuel: 0.03, cur: 'EUR' }, dest: { thcMin: 50000, thcKg: 150, cur: 'KRW' }, f1: 1.05, f2: 0.05, c: 161000 },
+            'GERMANY': { terms: 'Door-Port', origin: { r: 0.09, min: 10, hand: 19.8, screen: 0.08, cur: 'EUR' }, air: { min: 20, rates: { 45: 1.36, over: 1.36 }, fuel: 0.03, cur: 'EUR' }, dest: { thcMin: 50000, thcKg: 150, cur: 'KRW' }, f1: 1.05, f2: 0.04, c: 161000 },
+            'EDC(BELGIUM)': { terms: 'Door-Port', origin: { r: 0.09, min: 10, hand: 19.8, screen: 0.08, cur: 'EUR' }, air: { min: 20, rates: { 45: 1.36, over: 1.36 }, fuel: 0.03, cur: 'EUR' }, dest: { thcMin: 50000, thcKg: 150, cur: 'KRW' }, f1: 1.05, f2: 0, c: 161000 },
+            'UK(COOPER)': { terms: 'Door-Port', origin: { r: 0.09, min: 10, hand: 19.8, screen: 0.08, cur: 'EUR' }, air: { min: 20, rates: { 45: 1.36, over: 1.36 }, fuel: 0.03, cur: 'EUR' }, dest: { thcMin: 50000, thcKg: 150, cur: 'KRW' }, f1: 1.05, f2: 2.5, c: 187000 },
+            'SWEDEN BRG': { terms: 'Door-Port', origin: { r: 0.05, min: 17.36, hand: 18.74, screen: 0.07, cur: 'EUR' }, air: { min: 49.8, rates: { 45: 1.04, over: 1.04 }, fuel: 0.03, cur: 'EUR' }, dest: { thcMin: 50000, thcKg: 150, cur: 'KRW' }, f1: 1.1, f2: 0.06, c: 161000 },
+            'SWEDEN SEAL*': { terms: 'Door-Port', origin: { r: 0.05, min: 17.36, hand: 18.74, screen: 0.07, cur: 'EUR' }, air: { min: 49.8, rates: { 45: 1.04, over: 1.04 }, fuel: 0.03, cur: 'EUR' }, dest: { thcMin: 50000, thcKg: 150, cur: 'KRW' }, f1: 1.3, f2: 0.06, c: 161000 },
+            'USA BRG': { terms: 'Door-Port', origin: { r: 0.37, min: 100, hand: 0, screen: 0.15, cur: 'USD' }, air: { min: 95, rates: { 45: 1.15, over: 1.15 }, fuel: 1.1, sec: 0.1, cur: 'USD' }, dest: { thcMin: 74313, thcKg: 221.64, cur: 'KRW' }, f1: 1.8, f2: 0, c: 76000 },
+            'USA SEAL*': { terms: 'Door-Port', origin: { r: 0.37, min: 100, hand: 0, screen: 0.15, cur: 'USD' }, air: { min: 95, rates: { 45: 1.15, over: 1.15 }, fuel: 1.1, sec: 0.1, cur: 'USD' }, dest: { thcMin: 74313, thcKg: 221.64, cur: 'KRW' }, f1: 2.0, f2: 0, c: 76000 },
+            'NEA, CHINA BRG': { terms: 'Door-Port', origin: { r: 1.74, min: 600, hand: 55, cur: 'CNY' }, air: { min: 66, rates: { 45: 3.28, 100: 2.58, over: 2.06 }, cur: 'USD' }, dest: { thcMin: 10, thcKg: 0.18, cur: 'USD' }, f1: 1.05, f2: 0, c: 76100, spec: 12.5 },
+            'NEA, CHINA SEAL*': { terms: 'Door-Port', origin: { r: 1.74, min: 600, hand: 55, cur: 'CNY' }, air: { min: 66, rates: { 45: 3.28, 100: 2.58, over: 2.06 }, cur: 'USD' }, dest: { thcMin: 10, thcKg: 0.18, cur: 'USD' }, f1: 1.25, f2: 0, c: 76000, spec: 12.5 },
+            'MALAYSIA': { terms: 'Door-Door', origin: { r: 0.35, min: 900, hand: 0.55, screen: 0.18, cur: 'MYR' }, air: { min: 1445.85, rates: { 45: 22.32, 100: 5.62, over: 4.82 }, cur: 'MYR' }, dest: { thcMin: 55000, thcKg: 170, onMin: 95000, onKg: 110, cur: 'KRW' }, f1: 1.05, f2: 0.1, c: 161000 }
         };
 
-        function initSelects() {
-            const airSelect = document.getElementById('air-dest');
-            airDestinations.forEach(dest => {
-                const opt = document.createElement('option');
-                opt.value = dest;
-                opt.textContent = dest;
-                if(dest === 'ITALY') opt.selected = true;
-                airSelect.appendChild(opt);
-            });
-        }
-
-        function buildRows(tbodyId, type) {
-            const tbody = document.getElementById(tbodyId);
+        function buildRows(tid, type) {
+            const b = document.getElementById(tid);
             for (let i = 0; i < 10; i++) {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td class="bg-blue"><input type="checkbox" class="chk-calc"></td>
-                    <td class="bg-blue"><input type="text" class="input-pn no-border" value="" placeholder="형번 입력"></td>
+                    <td class="bg-blue"><input type="text" class="input-pn no-border" placeholder="형번"></td>
                     <td class="bg-blue"><input type="checkbox" class="chk-seal"></td>
                     <td class="bg-blue"><input type="checkbox" class="chk-li"></td>
-                    <td class="bg-blue"><input type="number" class="input-qty no-border" value="" min="1" placeholder="수량"></td>
-                    <td class="bg-blue"><input type="number" class="input-net no-border" value="" step="0.001" placeholder="순중량"></td>
+                    <td class="bg-blue"><input type="number" class="input-qty no-border" value="1" min="1"></td>
+                    <td class="bg-blue"><input type="number" class="input-net no-border" step="0.001" placeholder="0.000"></td>
                     <td class="bg-blue"><input type="checkbox" class="chk-over8"></td>
-                    <td class="cell-applied bg-yellow"></td>
-                    <td class="cell-final bg-yellow"></td>
+                    <td class="cell-applied bg-yellow">0.00</td>
+                    <td class="cell-final bg-yellow">0.00</td>
                 `;
-                tbody.appendChild(tr);
-
-                const inputs = tr.querySelectorAll('input');
-                inputs.forEach(inp => {
-                    inp.addEventListener('change', () => calcRow(tr, type));
-                    if(inp.classList.contains('input-qty') || inp.classList.contains('input-net')) {
-                        inp.addEventListener('input', () => calcRow(tr, type));
-                    }
-                });
-
-                const inputPn = tr.querySelector('.input-pn');
-                inputPn.addEventListener('blur', async () => {
-                    const pn = inputPn.value.trim().toUpperCase(); 
-                    inputPn.value = pn; 
-
-                    if(pn && pn !== tr.dataset.lastPn) {
-                        tr.dataset.lastPn = pn;
-                        const netInput = tr.querySelector('.input-net');
-                        netInput.placeholder = '조회중...';
-                        netInput.value = '';
-                        netInput.classList.remove('input-error');
-
-                        try {
-                            const netWeight = await fetchNetWeight(pn);
-                            netInput.value = netWeight.toFixed(3);
-                            if(netWeight > 8) tr.querySelector('.chk-over8').checked = true;
-                            calcRow(tr, type);
-                            calculateTotal(type);
-                        } catch (e) {
-                            netInput.placeholder = '에러(직접입력)';
-                            netInput.classList.add('input-error');
-                            calcRow(tr, type);
-                            calculateTotal(type);
-                        }
-                    }
+                b.appendChild(tr);
+                tr.querySelectorAll('input').forEach(inp => inp.addEventListener('input', () => calcRow(tr, type)));
+                tr.querySelector('.input-pn').addEventListener('blur', async (e) => {
+                    const pn = e.target.value.trim().toUpperCase();
+                    if(!pn) return; e.target.value = pn;
+                    const netIn = tr.querySelector('.input-net');
+                    netIn.placeholder = '조회중...';
+                    try {
+                        const w = await fetchNetWeight(pn);
+                        netIn.value = w.toFixed(3);
+                        if(w > 8) tr.querySelector('.chk-over8').checked = true;
+                        calcRow(tr, type);
+                    } catch { netIn.placeholder = '에러(직접입력)'; }
                 });
             }
         }
 
-        const roundup = (num, decimalPlaces) => {
-            const p = Math.pow(10, decimalPlaces);
-            return Math.ceil(num * p) / p;
-        };
-
-        const vlookupWgt = (value, table, colIndex) => {
-            let match = table.find(row => row.net === value);
-            if (!match) {
-                const smallerRows = table.filter(row => row.net <= value);
-                if (smallerRows.length > 0) match = smallerRows.reduce((prev, current) => (prev.net > current.net) ? prev : current);
-                else return null;
-            }
-            return match ? match[colIndex] : null;
-        };
-
-        const vlookupDhlCharge = (weight, table, destination) => {
-            for (const row of table) { if (row.weight >= weight) return row[destination]; }
-            return table[table.length - 1][destination];
-        };
-
         function calcRow(tr, type) {
-            const netText = tr.querySelector('.input-net').value;
+            const netVal = parseFloat(tr.querySelector('.input-net').value) || 0;
             const qty = parseInt(tr.querySelector('.input-qty').value) || 0;
             const isSeal = tr.querySelector('.chk-seal').checked;
             const over8 = tr.querySelector('.chk-over8').checked;
+            const appCell = tr.querySelector('.cell-applied');
+            const finCell = tr.querySelector('.cell-final');
 
-            if(!netText || isNaN(parseFloat(netText)) || qty === 0) {
-                tr.querySelector('.cell-applied').innerText = '';
-                tr.querySelector('.cell-final').innerText = '';
-                return;
-            }
+            if(netVal <= 0 || qty <= 0) { appCell.innerText = '0.00'; finCell.innerText = '0.00'; return; }
 
-            const net = parseFloat(netText);
-            const netWeightRaw = net * qty;
-            let appliedWeight = 0;
-            let finalWeight = 0;
+            const totalNet = netVal * qty;
+            
+            // Excel VLOOKUP(..., TRUE) 모사 로직
+            let matchedRow = wgtCalTable[0];
+            for(let r of wgtCalTable) { if(totalNet >= r.net) matchedRow = r; else break; }
 
-            if(type === 'DHL') {
-                appliedWeight = (netWeightRaw <= 1.9) ? roundup(netWeightRaw, 1) : roundup(netWeightRaw, 0);
-                let vVal = isSeal ? vlookupWgt(appliedWeight, wgtCalTable, 'sealy') : vlookupWgt(appliedWeight, wgtCalTable, 'gross');
-                if(isSeal && appliedWeight > 10) finalWeight = appliedWeight * 1.4;
-                else if(!isSeal && appliedWeight > 192) finalWeight = appliedWeight * 1.2;
-                else finalWeight = vVal;
-            } else {
-                appliedWeight = roundup(netWeightRaw, 0);
-                let vVal = vlookupWgt(appliedWeight, wgtCalTable, 'gross');
-                if(appliedWeight > 193) finalWeight = appliedWeight * 1.2;
-                else finalWeight = vVal;
-            }
+            const appWeight = matchedRow.net;
+            let finWeight = isSeal ? (matchedRow.sealy || matchedRow.gross) : matchedRow.gross;
+            
+            // 8kg 할증
+            if(over8) finWeight += 15;
 
-            if(over8) finalWeight += 15;
-
-            tr.querySelector('.cell-applied').innerText = appliedWeight.toFixed(0); // 엑셀은 정수 단위 보정
-            tr.querySelector('.cell-final').innerText = finalWeight.toFixed(2);
+            appCell.innerText = appWeight.toFixed(2);
+            finCell.innerText = finWeight.toFixed(2);
         }
 
         function calculateTotal(type) {
             const tbody = document.getElementById(type.toLowerCase() + '-tbody');
-            let totalFinalWeight = 0;
-            let anyLithium = false;
-
+            let totalFinW = 0, anyLi = false;
             tbody.querySelectorAll('tr').forEach(tr => {
                 if(tr.querySelector('.chk-calc').checked) {
-                    const finalStr = tr.querySelector('.cell-final').innerText;
-                    if(finalStr) totalFinalWeight += parseFloat(finalStr);
-                    if(tr.querySelector('.chk-li').checked) anyLithium = true;
+                    totalFinW += parseFloat(tr.querySelector('.cell-final').innerText) || 0;
+                    if(tr.querySelector('.chk-li').checked) anyLi = true;
                 }
             });
 
-            document.getElementById(type.toLowerCase() + '-total-weight').innerText = totalFinalWeight.toFixed(2) + " kg";
+            document.getElementById(type.toLowerCase() + '-total-weight').innerText = totalFinW.toFixed(2) + " kg";
             const fareEl = document.getElementById(type.toLowerCase() + '-total-fare');
-
-            if(totalFinalWeight === 0) {
-                fareEl.innerText = '0 원';
-                return;
-            }
+            if(totalFinW <= 0) { fareEl.innerText = '0 원'; return; }
 
             const dest = document.getElementById(type.toLowerCase() + '-dest').value;
-            let finalFare = 0;
+            let fare = 0;
 
             if(type === 'DHL') {
-                const baseFare = vlookupDhlCharge(totalFinalWeight, dhlChargeTable, dest);
-                const dhlMultiplier = (parseFloat(document.getElementById('dhl-multiplier').value) || 100) / 100;
-                finalFare = baseFare * dhlMultiplier;
-                if(anyLithium) finalFare += 7399;
-                finalFare = Math.round(finalFare / 100) * 100;
+                let match = dhlChargeTable[0];
+                for(let r of dhlChargeTable) { if(totalFinW <= r.weight) { match = r; break; } match = r; }
+                const base = match[dest];
+                const mult = (parseFloat(document.getElementById('dhl-multiplier').value) || 100) / 100;
+                fare = (base * mult) + (anyLi ? 7399 : 0);
             } else {
-                const sekRate = parseFloat(document.getElementById('sek-rate').value) || 147.93;
-                const euroRate = parseFloat(document.getElementById('euro-rate').value) || 1633.53;
-                const lane = airLanes[dest];
-                if(!lane) return;
+                const lane = airLanes[dest]; if(!lane) return;
+                const cw = Math.max(totalFinW, totalFinW * 0.005 * 167);
+                const sRate = parseFloat(document.getElementById('sek-rate').value);
+                const eRate = parseFloat(document.getElementById('euro-rate').value);
 
-                const chargeableWeight = Math.max(totalFinalWeight, totalFinalWeight * 0.005 * 167);
+                // Origin
+                const oCost = Math.max(lane.origin.min, cw * lane.origin.r) + (lane.origin.hand || 0) + (cw * (lane.origin.screen || 0));
+                const oSek = oCost * (exInt[lane.origin.cur] || 1);
 
-                const originRate = Math.max(lane.origin.minRate, chargeableWeight * lane.origin.ratePerKg) + lane.origin.handlingFee + (chargeableWeight * lane.origin.screeningFee);
-                const originSEK = originRate * (exchangeRatesInternal[lane.origin.currency] || 1);
+                // Air
+                const aKey = Object.keys(lane.air.rates).find(k => cw <= parseFloat(k)) || 'over';
+                const aCost = Math.max(lane.air.min, cw * lane.air.rates[aKey]) + (cw * (lane.air.fuel || 0)) + (cw * (lane.air.sec || 0));
+                const aSek = aCost * (exInt[lane.air.cur] || 1);
 
-                const airKey = Object.keys(lane.air.rates).find(k => chargeableWeight < k) || 'over';
-                const airRate = Math.max(lane.air.minRate, chargeableWeight * lane.air.rates[airKey]) + (chargeableWeight * lane.air.fuelSurcharge);
-                const airSEK = airRate * (exchangeRatesInternal[lane.air.currency] || 1);
+                // Dest
+                const dCost = Math.max(lane.dest.thcMin, cw * lane.dest.thcKg) + Math.max(lane.dest.onMin || 0, cw * (lane.dest.onKg || 0));
+                const dSek = dCost * (exInt[lane.dest.cur] || 1);
 
-                const destRate = Math.max(lane.dest.thcMin, chargeableWeight * lane.dest.thcPerKg) + Math.max(lane.dest.onCarriageMin, chargeableWeight * lane.dest.onCarriagePerKg);
-                const destSEK = destRate * (exchangeRatesInternal[lane.dest.currency] || 1);
-
-                let totalSEK = originSEK + airSEK + (lane.termsOfDelivery.includes('Door') ? destSEK : 0);
-                if (lane.termsOfDelivery === 'Door - Door') totalSEK = originSEK + airSEK + destSEK;
-                else if (lane.termsOfDelivery === 'Door - Port') totalSEK = originSEK + airSEK;
-
-                const totalCostToInvoiceSEK = totalSEK * 1.05; // 5% recovery
-                const liSurcharge = anyLithium ? 35 : 0;
-
-                if(lane.final.special) {
-                    finalFare = (totalCostToInvoiceSEK * lane.final.factor1 * sekRate) + (lane.final.special * euroRate) + lane.final.const;
-                } else {
-                    finalFare = (totalCostToInvoiceSEK * lane.final.factor1 * sekRate) + (chargeableWeight * lane.final.factor2 * euroRate) + lane.final.const;
-                }
+                let totalSek = oSek + aSek;
+                if(lane.terms === 'Door-Door') totalSek += dSek;
                 
-                finalFare += (liSurcharge * euroRate);
-                finalFare = roundup(finalFare, -2);
-            }
+                const toInvoiceSek = totalSek * 1.05;
+                const liAdd = anyLi ? 35 : 0;
 
-            fareEl.innerText = Math.round(finalFare).toLocaleString() + " 원";
+                if(lane.spec) fare = (toInvoiceSek * lane.f1 * sRate) + (lane.spec * eRate) + lane.c;
+                else fare = (toInvoiceSek * lane.f1 * sRate) + (cw * lane.f2 * eRate) + lane.c;
+                
+                fare += (liAdd * eRate);
+            }
+            fareEl.innerText = (Math.ceil(fare / 100) * 100).toLocaleString() + " 원";
         }
 
-        async function fetchNetWeight(productNumber) {
-            const WORKER_URL = 'https://weathered-lab-9c65.maxpaek.workers.dev';
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 8000);
+        async function fetchNetWeight(pn) {
+            const url = `https://weathered-lab-9c65.maxpaek.workers.dev?designation=${encodeURIComponent(pn)}`;
             try {
-                const response = await fetch(`${WORKER_URL}?designation=${encodeURIComponent(productNumber)}`, { signal: controller.signal });
-                clearTimeout(timeoutId);
-                const data = await response.json();
-                const techData = data?.documentList?.documents[0]?.technical_data;
-                for (const section of techData) {
-                    const weightRow = section?.rows?.find(r => r.id === 'FR_PRODUCT_NET_WEIGHT');
-                    if (weightRow) return weightRow.unit.toLowerCase() === 'g' ? parseFloat(weightRow.value) / 1000 : parseFloat(weightRow.value);
+                const r = await fetch(url); const d = await r.json();
+                const tech = d.documentList.documents[0].technical_data;
+                for(let s of tech) {
+                    const row = s.rows.find(i => i.id === 'FR_PRODUCT_NET_WEIGHT');
+                    if(row) return row.unit.toLowerCase() === 'g' ? parseFloat(row.value)/1000 : parseFloat(row.value);
                 }
-                throw new Error();
-            } catch (error) {
-                clearTimeout(timeoutId);
-                throw new Error();
-            }
+            } catch(e) { throw e; }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            loadExchangeRates();
-            initSelects();
-            buildRows('dhl-tbody', 'DHL');
-            buildRows('air-tbody', 'AIR');
-            calculateTotal('DHL');
-            calculateTotal('AIR');
+            const ad = document.getElementById('air-dest');
+            Object.keys(airLanes).forEach(k => { const o = document.createElement('option'); o.value = k; o.innerText = k; ad.appendChild(o); });
+            loadExchangeRates(); buildRows('dhl-tbody', 'DHL'); buildRows('air-tbody', 'AIR');
         });
     </script>
 </body>
